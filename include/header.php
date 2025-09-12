@@ -1,59 +1,149 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <meta name="description" content="">
-  <meta name="author" content="">
-
+  <meta charset="UTF-8" />
   <title>Visitors Management System</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <!-- Bootstrap 4 CSS -->
-  <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.6.2/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Fonts & Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet"/>
 
-  <!-- FontAwesome (for icons) -->
-  <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <style>
+    :root{
+      --bg:#f6f7fb;
+      --card:#ffffff;
+      --ink:#1f2937;
+      --ink-soft:#6b7280;
+      --edge:#e5e7eb;
+      --brand:#2563eb;
+      --accent:#10b981;
+      --warn:#f59e0b;
+      --danger:#ef4444;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--ink);
+      font-family:'Poppins',sans-serif;
+      font-size:15px;
+    }
 
-  <!-- Custom styles -->
-  <link href="css/sb-admin.css" rel="stylesheet">
-  <link href="css/custom_style.css?ver=1.1" rel="stylesheet">
-  <link href="vendor/datatables/dataTables.bootstrap4.css" rel="stylesheet">
-  <link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.9/themes/base/jquery-ui.css" rel="stylesheet" />
+    /* Sidebar */
+    .sidebar{
+      position:fixed; inset:0 auto 0 0;
+      width:260px; background:#0f172a; color:#fff;
+      border-right:1px solid rgba(255,255,255,0.06);
+      display:flex; flex-direction:column;
+    }
+    .brand{
+      padding:18px 20px; border-bottom:1px solid rgba(255,255,255,0.08);
+      display:flex; align-items:center; gap:10px; font-weight:600;
+    }
+    .brand .logo{display:inline-flex; width:34px; height:34px; border-radius:8px; background:#1d4ed8; align-items:center; justify-content:center}
+    .nav{
+      list-style:none; padding:10px 10px 24px; margin:0; overflow:auto;
+    }
+    .nav a{
+      display:flex; gap:12px; align-items:center;
+      padding:10px 12px; margin:4px 0; color:#cbd5e1; text-decoration:none;
+      border-radius:8px; transition:all .15s ease;
+    }
+    .nav a:hover{background:rgba(255,255,255,0.06); color:#fff}
+    .nav .section-label{
+      font-size:12px; letter-spacing:.08em; text-transform:uppercase; color:#94a3b8;
+      padding:12px 12px 6px; margin-top:6px;
+    }
+    .nav .is-active{background:#1e293b; color:#fff}
 
-  <!-- FullCalendar -->
-  <link href='https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.9.0/fullcalendar.min.css' rel='stylesheet' />
+    /* Main */
+    .main{
+      margin-left:260px; padding:22px;
+      min-height:100vh;
+    }
+
+    /* Cards */
+    .card-lite{
+      background:var(--card); border:1px solid var(--edge);
+      border-radius:14px; box-shadow:0 2px 10px rgba(16,24,40,.04);
+    }
+    .card-head{
+      padding:16px 18px; border-bottom:1px solid var(--edge);
+      display:flex; align-items:center; justify-content:space-between; gap:12px;
+    }
+    .card-body{ padding:16px 18px; }
+    .chip{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:6px 10px; border-radius:20px; font-size:12px; border:1px solid var(--edge); background:#fff;
+    }
+    .chip i{opacity:.85}
+
+    /* Tables */
+    .table thead th{color:#6b7280; font-weight:600; background:#fafafa}
+    .table td, .table th{vertical-align:middle}
+    .stat{
+      display:flex; align-items:center; gap:10px;
+      padding:14px; border-radius:14px; background:var(--card);
+      border:1px solid var(--edge);
+    }
+    .stat i{font-size:18px}
+    .muted{color:var(--ink-soft)}
+    .btn-soft{
+      border:1px solid var(--edge); background:#fff; color:var(--ink);
+    }
+    .btn-soft:hover{border-color:#cbd5e1; background:#f9fafb}
+    .btn-primary{background:var(--brand); border-color:var(--brand)}
+    .btn-primary:hover{background:#1d4ed8; border-color:#1d4ed8}
+
+    /* Topbar */
+    .topbar{
+      display:flex; align-items:center; justify-content:space-between; gap:14px; margin-bottom:18px;
+    }
+    .crumbs{
+      display:flex; align-items:center; gap:8px; color:var(--ink-soft); font-size:13px;
+    }
+    .crumbs a{ color:var(--ink-soft); text-decoration:none }
+    .crumbs a:hover{ text-decoration:underline }
+    .title-row{ display:flex; align-items:center; gap:12px; }
+    .title-row h2{ margin:0; font-weight:600; font-size:22px; }
+    .title-row .badge{
+      background:#eef2ff; color:#4338ca; border:1px solid #e0e7ff;
+      padding:6px 10px; border-radius:10px; font-weight:500;
+    }
+
+    /* Responsive */
+    @media (max-width: 992px){
+      .sidebar{transform:translateX(-100%); transition:transform .2s ease}
+      .sidebar.show{transform:translateX(0)}
+      .main{margin-left:0}
+      .topbar .toggle{display:inline-flex}
+    }
+    @media (min-width: 993px){
+      .topbar .toggle{display:none}
+    }
+  </style>
 </head>
-<body id="page-top">
+<body>
 
-  <nav class="navbar navbar-expand navbar-dark bg-dark static-top">
-    <h4 class="text-white">Visitors Management System</h4>
+  <!-- Sidebar -->
+  <?php include('side-bar.php'); ?>
 
-    <button class="btn btn-link btn-sm text-white order-1 order-sm-0" id="sidebarToggle">
-      <i class="fas fa-bars"></i>
-    </button>
-
-    <form class="d-none d-md-inline-block form-inline ml-auto mr-0 mr-md-3 my-2 my-md-0">
-      <span class="text-white">Welcome, <?php echo $name; ?></span>
-    </form>
-
-    <!-- Navbar -->
-    <ul class="navbar-nav ml-auto ml-md-0">
-      <li class="nav-item dropdown no-arrow">
-        <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown"
-           aria-haspopup="true" aria-expanded="false">
-          <i class="fas fa-user"></i>
-        </a>
-        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="userDropdown">
-          <a class="dropdown-item" href="logout.php">Logout</a>
-        </div>
-      </li>
-    </ul>
-  </nav>
-
-  <!-- Bootstrap 4 JS -->
-  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.6.2/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+  <!-- Main -->
+  <main class="main">
+    <!-- Topbar -->
+    <div class="topbar">
+      <button class="btn btn-soft toggle" id="toggleSidebar"><i class="fa-solid fa-bars"></i></button>
+      <div class="crumbs">
+        <a href="admin_dashboard.php">Dashboard</a>
+        <span>›</span>
+        <span><?php echo basename($_SERVER['PHP_SELF'], '.php'); ?></span>
+      </div>
+      <div class="d-flex align-items-center gap-2">
+        <span class="text-muted">Welcome, <?php echo $name; ?></span>
+        <button class="btn btn-soft"><i class="fa-regular fa-bell"></i></button>
+        <button class="btn btn-soft"><i class="fa-regular fa-circle-question"></i></button>
+        <a href="logout.php" class="btn btn-soft"><i class="fa-solid fa-right-from-bracket"></i></a>
+      </div>
+    </div>

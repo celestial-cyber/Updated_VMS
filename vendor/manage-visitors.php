@@ -81,7 +81,7 @@ if(empty($id))
                       <tr>
                       <td><?php echo $sn; ?></td>
                       <td><?php echo $row['name']; ?></td>
-                      <td><?php echo $row['emailid']; ?></td>
+                      <td><?php echo $row['email']; ?></td>
                       <td><?php echo $row['mobile']; ?></td>
                         
                  <?php if($row['status']==1){
@@ -108,7 +108,7 @@ if(empty($id))
                   <tr>
                       <td><?php echo $sn; ?></td>
                       <td><?php echo $row['name']; ?></td>
-                      <td><?php echo $row['emailid']; ?></td>
+                      <td><?php echo $row['email']; ?></td>
                       <td><?php echo $row['mobile']; ?></td>
                         
                  <?php if($row['status']==1){

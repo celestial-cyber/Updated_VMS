@@ -1,19 +1,18 @@
 <?php
 $server="localhost";
 $username="root";
-$password="";
+$password="Somwith@07";
 $databasename="vms_db";
 
 $conn = mysqli_connect($server, $username, $password);
 
 $abc=mysqli_select_db($conn,$databasename);
 
-if(!$abc)
-{
-	die("disconnect");
+if (!$conn) {
+	die("Connection failed: " . mysqli_connect_error());
 }
-else
-{
-	//die ("successfull");
+
+if (!$abc) {
+	die("Database selection failed: " . mysqli_error($conn));
 }
 ?>

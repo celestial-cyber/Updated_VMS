@@ -19,7 +19,7 @@ $popup_type = '';
 // Handle Save / Update Visitor
 if(isset($_POST['sv-vstr'])) {
     $fullname   = mysqli_real_escape_string($conn, $_POST['fullname']);
-    $emailid    = mysqli_real_escape_string($conn, $_POST['emailid']);
+    $email    = mysqli_real_escape_string($conn, $_POST['email']);
     $mobile     = mysqli_real_escape_string($conn, $_POST['mobile']);
     $address    = mysqli_real_escape_string($conn, $_POST['address']);
     $department = mysqli_real_escape_string($conn, $_POST['department']);
@@ -28,14 +28,14 @@ if(isset($_POST['sv-vstr'])) {
     if($status == 0) {
         $update_visitor = mysqli_query($conn, "
             UPDATE tbl_visitors 
-            SET name='$fullname', emailid='$emailid', mobile='$mobile', 
+            SET name='$fullname', email='$email', mobile='$mobile',
                 address='$address', department='$department', status='$status', out_time=NOW() 
             WHERE id='$id'
         ");
     } else {
         $update_visitor = mysqli_query($conn, "
             UPDATE tbl_visitors 
-            SET name='$fullname', emailid='$emailid', mobile='$mobile', 
+            SET name='$fullname', email='$email', mobile='$mobile',
                 address='$address', department='$department', status='$status' 
             WHERE id='$id'
         ");
@@ -77,7 +77,7 @@ if(isset($_POST['sv-vstr'])) {
                     <div class="form-group row">
                         <label class="col-lg-4 col-form-label">Email</label>
                         <div class="col-lg-6">
-                            <input type="email" name="emailid" class="form-control" value="<?php echo $row['emailid']; ?>" readonly>
+                            <input type="email" name="email" class="form-control" value="<?php echo $row['email']; ?>" readonly>
                         </div>
                     </div>
                     <!-- Mobile -->

@@ -4,7 +4,7 @@ include 'connection.php';
 
 // ✅ If not logged in → redirect to login
 if (!isset($_SESSION['id'])) {
-    header("Location: login.php");
+    header("Location: index.php");
     exit();
 }
 
@@ -201,7 +201,7 @@ body {
 
 <!-- Banner -->
 <div class="banner">
-  <img src="Images\banner.png" alt="VMS Banner">
+  <img src="Images/banner.png" alt="VMS Banner">
   <div class="banner-content">
     <a href="logout.php" class="logout-btn">Logout</a>
   </div>
@@ -229,7 +229,7 @@ body {
 <h5 class="subtitle">An L&D Initiative</h5>
 
 
-  <img src="Images\buildings.png" alt="Illustration" class="illustration">
+  <img src="Images/buildings.png" alt="Illustration" class="illustration">
 
   <!-- Get Started Button -->
   <div class="mt-3">
