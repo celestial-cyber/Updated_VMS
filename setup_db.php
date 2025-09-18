@@ -2,21 +2,38 @@
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
-require_once __DIR__ . '/connection.php';
+// First connect without database selection
+$server = "localhost";
+$username = "root";
+$password = "root@123";
+
+$conn = mysqli_connect($server, $username, $password);
+if (!$conn) {
+    die("Connection failed: " . mysqli_connect_error());
+}
 
 $sqlFile = __DIR__ . '/setup.sql';
 if (!file_exists($sqlFile)) {
-	http_response_code(500);
-	die('setup.sql not found');
+    die('setup.sql not found');
 }
 
 $sql = file_get_contents($sqlFile);
 if ($sql === false) {
-	http_response_code(500);
-	die('Unable to read setup.sql');
+    die('Unable to read setup.sql');
 }
 
-$statements = array_filter(array_map('trim', preg_split('/;\s*\n/', $sql)));
+// Execute multi query
+if (mysqli_multi_query($conn, $sql)) {
+    echo "Database and tables created successfully!\n";
+    do {
+        // Store first result set
+        if ($result = mysqli_store_result($conn)) {
+            mysqli_free_result($result);
+        }
+    } while (mysqli_next_result($conn));
+} else {
+    echo "Error creating database and tables: " . mysqli_error($conn);
+}
 
 $errors = [];
 foreach ($statements as $statement) {
