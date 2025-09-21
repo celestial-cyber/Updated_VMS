@@ -1,194 +1,138 @@
 <?php
 session_start();
-include 'connection.php';
-
-if (isset($_REQUEST['login_btn'])) {
-    $email = $_POST['email'];
-    $pwd   = md5($_POST['pwd']);
-    $role  = $_POST['role']; // ✅ from hidden input or dropdown
-
-    if ($role === "admin") {
-        $select_query = mysqli_query($conn, "SELECT id, user_name FROM tbl_admin WHERE emailid='$email' AND password='$pwd'");
-    } else {
-        $select_query = mysqli_query($conn, "SELECT id, member_name FROM tbl_members WHERE emailid='$email' AND password='$pwd'");
-    }
-
-    $rows = mysqli_num_rows($select_query);
-    if ($rows > 0) {
-        $username = mysqli_fetch_row($select_query);
-
-        // ✅ Store session values
-        $_SESSION['id']   = $username[0];
-        $_SESSION['name'] = $username[1];
-        $_SESSION['role'] = $role; // ✅ used by landing.php
-
-        // ✅ Always redirect to landing page first
-        header("Location: landing.php");
-        exit();
-    } else {
-        echo "<script>alert('You have entered wrong email id or password.');</script>";
-    }
-}
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <title>Visitor Management System</title>
+<meta charset="UTF-8">
+<title>Visitor Management System</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+<style>
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background-color: #ffffff;
+}
 
-  <!-- Custom fonts for this template-->
-  <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
-  <!-- Custom styles for this template-->
-  <link href="css/sb-admin.css" rel="stylesheet">
-  <link href="css/custom_style.css?ver=1.1" rel="stylesheet">
+/* Center content card */
+.center-box {
+  border: 1px solid #ccc;
+  border-radius: 12px;
+  margin: 60px auto;
+  max-width: 900px;
+  padding: 80px 40px 40px 40px;
+  text-align: center;
+  position: relative;
+  background: linear-gradient(to bottom, #d9f0d9, #ffffff);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+}
 
-  <style>
-  /* ✅ Banner card wrapper */
-  .banner {
-      text-align: center;
-      margin-top: 0px;
-      margin-bottom: 10px;
-      max-width: 1000px;
-      margin-left: auto;
-      margin-right: auto;
-      border-radius: 10px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-      overflow: hidden;
-  }
-  .banner img {
-      width: 100%;
-      height: 200px;
-      object-fit: cover;
-      display: block;
-  }
+/* Logos inside the card */
+.logo-left {
+  max-height: 150px;
+  position: absolute;
+  top: 20px;  
+  left: 40px;
+}
 
-  /* ✅ Role selection section */
-  .role-buttons {
-      margin-top: 15px;
-      text-align: center;
-  }
-  .role-buttons h3 {
-      font-size: 22px;
-      margin-bottom: 5px;
-  }
-  .role-buttons p {
-      font-weight: bold;
-      color: #004d00; /* ✅ dark green */
-      font-size: 18px;
-      margin-bottom: 20px;
-  }
+/* Illustration */
+.illustration {
+  max-height: 200px;
+  margin: -60px auto -25px auto; 
+  display: block;
+}
 
-  /* ✅ Buttons with green theme */
-  .btn-role {
-      display: inline-block;
-      width: 220px;
-      height: 60px;
-      margin: 10px;
-      border-radius: 0;      
-      border: 2px solid #004d00;
-      background-color: #004d00;
-      color: white;
-      font-size: 18px;
-      font-weight: bold;
-      cursor: pointer;
-      transition: 0.3s;
-  }
-  .btn-role:hover {
-      background-color: white;
-      color: #004d00;
-  }
+/* Get Started Button */
+/* Purple gradient button */
+/* Purple gradient button that matches green background */
+.btn-theme {
+  background: linear-gradient(45deg, #6a0dad, #9b30ff); /* deep purple to violet */
+  color: #fff;
+  font-size: 16px;
+  padding: 10px 20px;
+  border-radius: 6px;
+  text-decoration: none;
+  border: none;
+  transition: all 0.3s ease;
+}
 
-  /* ✅ Login card */
-  .card-login {
-      margin: 0 auto;
-      margin-top: 20px;
-      max-width: 400px;
-      padding: 20px;
-      display: none; /* hidden by default */
-  }
+.btn-theme:hover {
+  background: linear-gradient(45deg, #9b30ff, #6a0dad); /* reverse gradient on hover */
+  color: #fff;
+  transform: scale(1.05);
+}
 
-  /* ✅ Input fields matching green shade */
-  .form-control {
-      border: 1px solid #28a745;
-  }
-  .form-control:focus {
-      border-color: #004d00;
-      box-shadow: 0 0 0 0.2rem rgba(0,77,0,0.25);
-  }
+/* Visitor Management System title */
+.main-title {
+  font-family: 'Times New Roman', Times, serif;
+  font-size: 45px;           
+  font-weight: bold;
+  color: #0d3d12;            
+  text-align: left;
+  margin-left: 150px;        
+  margin-top: -25px;         
+  margin-bottom: 20px;
+}
 
-  body {
-      background-color: #e6f4ea;
-  }
-  </style>
+/* L&D Initiative subtitle */
+.subtitle {
+  font-family: Arial, sans-serif;
+  font-size: 16px;          
+  font-weight: bold;
+  color: #000000;           
+  text-align: right;         
+  margin-right: 130px;        
+  margin-top: -15px;         
+  margin-bottom: 20px;
+}
 
-  <script>
-    function showLogin(role) {
-        document.getElementById('role-selection').style.display = 'none';
-        document.getElementById('login-card').style.display = 'block';
-        document.getElementById('role').value = role; // set hidden role input
-        document.getElementById('login-title').innerText = "Login as " + role.charAt(0).toUpperCase() + role.slice(1);
-    }
-    function goBack() {
-        document.getElementById('login-card').style.display = 'none';
-        document.getElementById('role-selection').style.display = 'block';
-    }
-  </script>
+footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background-color: #004d00;
+    color: white;
+    text-align: center;
+    font-size: 14px;
+    padding: 4px 0;
+    z-index: 1000;
+}
+</style>
 </head>
 <body>
 
-  <!-- ✅ Banner at the top -->
-  <div class="banner">
-    <img src="Images/SABanner.png" alt="Specanciens Banner">
+<!-- Main Center Card -->
+<div class="center-box">
+  <!-- Left Logo -->
+  <img src="Images/SALogo.png" class="logo-left" alt="SA Logo">
+
+  <!-- SPECANCIENS PRESENTS text -->
+  <div style="display: flex; align-items: center; justify-content: flex-start; margin-bottom: 30px; margin-left: 150px; margin-top: -20px;">
+    <h5 style="font-weight: bold; font-size: 18px; margin: 0;">SPECANCIENS PRESENTS</h5>
   </div>
 
-  <!-- ✅ Role Selection -->
-  <div id="role-selection" class="role-buttons">
-    <h3>Login to Visitor Management System</h3>
-    <p>Please choose your login type:</p>
+  <!-- Main Title -->
+  <h2 class="main-title">
+    Visitor <span style="color:#145a20;">Management</span> System
+  </h2>
 
-    <!-- ✅ Green theme buttons -->
-    <button class="btn-role" onclick="showLogin('admin')">Admin Login</button>
-    <button class="btn-role" onclick="showLogin('member')">Member Login</button>
+  <!-- Subtitle -->
+  <h5 class="subtitle">An L&D Initiative</h5>
+
+  <!-- Illustration -->
+  <img src="Images/buildings.png" alt="Illustration" class="illustration">
+
+  <!-- Get Started Button -->
+  <div class="mt-3">
+    <!-- Redirect to landing.php -->
+    <a href="landing.php" class="btn btn-theme">Click to Get Started</a>
   </div>
+</div>
 
-  <!-- ✅ Login Form (hidden until role chosen) -->
-  <div id="login-card" class="card card-login mx-auto">
-    <div class="card-header text-center">
-      <h4 id="login-title">Login</h4>
-    </div>
-    <div class="card-body">
-      <form name="login" method="post" action="">
-        <input type="hidden" name="role" id="role" value="">
-        <div class="form-group">
-            <input type="email" id="inputEmail" class="form-control" name="email" placeholder="Email address" required autofocus>
-        </div>
-        <div class="form-group">
-            <input type="password" id="inputPassword" class="form-control" placeholder="Password" name="pwd" required>
-        </div>
-        <input type="submit" class="btn btn-primary btn-block" name="login_btn" value="Login"
-               style="background-color:#004d00; border-color:#004d00; color:white;">
-
-        <!-- ✅ Back button styled -->
-        <div class="form-group text-center">
-          <button type="button" class="btn btn-success btn-sm" onclick="goBack()" 
-                  style="background-color:#004d00; border-color:#004d00; color:white; margin-top:10px; padding:6px 20px;">
-            ← Back
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
-    <!-- ✅ Sticky Footer -->
-  <footer style="position:fixed; bottom:0; left:0; width:100%; 
-                 background-color:#004d00; color:white; 
-                 text-align:center; font-size:14px; 
-                 padding:4px 0; z-index:1000;">
+<footer>
     © 2025 SPECANCIENS - All Rights Reserved.
-  </footer>
-
+</footer>
 
 </body>
 </html>

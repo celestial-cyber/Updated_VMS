@@ -1,241 +1,225 @@
 <?php
 session_start();
-include 'connection.php';
+include 'connection.php'; // Make sure this file does NOT echo anything
 
-// ✅ If not logged in → redirect to login
-if (!isset($_SESSION['id'])) {
-    header("Location: index.php");
-    exit();
+// Handle login form submission
+if (isset($_POST['login_btn'])) {
+    $email = $_POST['email'];
+    $pwd   = md5($_POST['pwd']);
+    $role  = $_POST['role'];
+
+    if ($role === "admin") {
+        $select_query = mysqli_query($conn, "SELECT id, user_name FROM tbl_admin WHERE emailid='$email' AND password='$pwd'");
+    } else {
+        $select_query = mysqli_query($conn, "SELECT id, member_name FROM tbl_members WHERE emailid='$email' AND password='$pwd'");
+    }
+
+    if (mysqli_num_rows($select_query) > 0) {
+        $username = mysqli_fetch_row($select_query);
+        $_SESSION['id']   = $username[0];
+        $_SESSION['name'] = $username[1];
+        $_SESSION['role'] = $role;
+
+        // Redirect to dashboard
+        $dashboard_link = ($role === 'admin') ? "admin_dashboard.php" : "member_dashboard.php";
+        header("Location: $dashboard_link");
+        exit();
+    } else {
+        echo "<script>alert('You have entered wrong email id or password.');</script>";
+    }
 }
-
-// ✅ Detect role from session
-$user_role = $_SESSION['role'] ?? 'member';
-
-// ✅ Dashboard link based on role
-$dashboard_link = ($user_role === 'admin') ? "admin_dashboard.php" : "member_dashboard.php";
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Visitor Management System</title>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+
+<link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+<link href="css/sb-admin.css" rel="stylesheet">
+<link href="css/custom_style.css?ver=1.2" rel="stylesheet">
+
 <style>
 body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-  /* Darker green gradient background */
-  background: linear-gradient(to bottom, #b3d9b3, #ffffff);
+    background-color: #e6f4ea;
+    font-family: Arial, sans-serif;
 }
 
-/* Banner box */
+/* Banner */
 .banner {
-  position: relative;
-  width: 100%;
-  height: 200px;
-  margin-bottom: 10px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-  overflow: hidden;
+    text-align: center;
+    margin: 0 auto 15px auto;
+    max-width: 1000px;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    overflow: hidden;
 }
-
 .banner img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
 }
 
-/* Banner content layout */
-.banner-content {
-  position: absolute;
-  top: 20px;
-  left: 30px;
-  right: 30px;
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
+/* Role selection */
+.role-buttons {
+    text-align: center;
+    margin-top: 10px;
+}
+.role-buttons h3 {
+    font-size: 24px;
+    margin-bottom: 5px;
+    color: #004d00;
+}
+.role-buttons p {
+    font-weight: bold;
+    color: #004d00;
+    font-size: 18px;
+    margin-bottom: 20px;
 }
 
-/* Logout button */
-.logout-btn {
-  background-color: #dc3545; /* Red theme */
-  color: #fff;
-  padding: 8px 18px;
-  border-radius: 6px;
-  text-decoration: none;
-  font-weight: bold;
-  font-size: 14px;
-  transition: background 0.3s;
-  position: relative;
-  top: 30px;
+/* Green theme buttons */
+.btn-role {
+    display: inline-block;
+    width: 220px;
+    height: 60px;
+    margin: 10px;
+    border-radius: 5px;
+    border: 2px solid #004d00;
+    background-color: #004d00;
+    color: white;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+.btn-role:hover {
+    background-color: white;
+    color: #004d00;
 }
 
-.logout-container {
-  display: flex;
-  justify-content: flex-end; /* moves button to right */
-  align-items: center;       /* keeps vertical alignment */
-  padding: 20px;             /* adjust spacing as needed */
+/* Login card */
+.card-login {
+    margin: 20px auto;
+    max-width: 400px;
+    padding: 20px;
+    display: none;
+    border-radius: 10px;
+    border: 1px solid #28a745;
+    box-shadow: 0 4px 10px rgba(0,77,0,0.2);
+    background-color: white;
 }
 
-.logout-btn {
-  background-color: #dc3545;
-  color: #fff;
-  padding: 8px 18px;
-  border-radius: 6px;
-  text-decoration: none;
-  font-weight: bold;
-  font-size: 14px;
-  transition: background 0.3s;
+/* Input fields */
+.form-control {
+    border: 1px solid #28a745;
+    border-radius: 5px;
+}
+.form-control:focus {
+    border-color: #004d00;
+    box-shadow: 0 0 0 0.2rem rgba(0,77,0,0.25);
 }
 
-.logout-btn:hover {
-  background-color: #c82333;
-  color: #fff;
+/* Submit button */
+.btn-login {
+    background-color: #004d00;
+    border-color: #004d00;
+    color: white;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+.btn-login:hover {
+    background-color: #28a745;
+    border-color: #28a745;
+    color: white;
 }
 
-/* Tablet */
-@media (max-width: 768px) {
-  .logout-btn {
-    font-size: 12px;
-    padding: 12px 14px;
-  }
+/* Back button */
+.btn-back {
+    background-color: #004d00;
+    border-color: #004d00;
+    color: white;
+    padding: 6px 20px;
+    font-size: 14px;
+    margin-top:15px;
+    display: inline-block;
+}
+.btn-back:hover {
+    background-color: #28a745;
+    border-color: #28a745;
+    color: white;
 }
 
-/* Mobile */
-@media (max-width: 480px) {
-  .logout-btn {
-    font-size: 11px;
-    padding: 6px 12px;
-  }
+/* Footer */
+footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background-color: #004d00;
+    color: white;
+    text-align: center;
+    font-size: 14px;
+    padding: 4px 0;
+    z-index: 1000;
 }
-
-/* Center content card with green gradient */
-.center-box {
-  border: 1px solid #ccc;
-  border-radius: 12px;
-  margin: 40px auto;
-  max-width: 900px;
-  padding: 120px 40px 40px 40px; /* extra top padding for logos */
-  text-align: center;
-  position: relative; /* For logo positioning */
-  background: linear-gradient(to bottom, #d9f0d9, #ffffff);
-  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
-}
-
-/* Logos inside the card - bigger and diagonally lower */
-.logo-left {
-  max-height: 150px;
-  position: absolute;
-  top: 60px;   /* move diagonally down */
-  left: 40px;
-}
-
-.logo-right {
-  max-height: 120px;
-  position: absolute;
-  top: 60px;   /* move diagonally down */
-  right: 30px;
-}
-
-/* Illustration */
-/* Illustration */
-/* Illustration */
-.illustration {
-  max-height: 200px;
-  margin: -80px auto -25px auto; /* top 10px, bottom 20px, centered */
-  display: block;
-}
-
-
-/* Get Started Button */
-.btn-theme {
-  background-color: #044210ff;
-  color: #fff;
-  font-size: 16px;
-  padding: 10px 20px;
-  border-radius: 6px;
-  text-decoration: none;
-  border: none;
-}
-.btn-theme:hover {
-  background-color: #0da114ff;
-  color: #fff;
-}
-/* Visitor Management System title */
-/* Visitor Management System title */
-/* Visitor Management System title */
-/* Visitor Management System title */
-/* Visitor Management System title */
-/* Visitor Management System title */
-.main-title {
-  font-family: 'Times New Roman', Times, serif;
-  font-size: 45px;           /* slightly larger */
-  font-weight: bold;
-  color: #0d3d12;            /* even darker green */
-  text-align: left;
-  margin-left: 150px;        /* align with left logo */
-  margin-top: -25px;         /* move slightly upward */
-  margin-bottom: 20px;
-}
-/* L&D Initiative subtitle */
-/* L&D Initiative subtitle */
-/* L&D Initiative subtitle on the right */
-/* L&D Initiative subtitle on the right */
-.subtitle {
-  font-family: Arial, sans-serif;
-  font-size: 16px;          /* smaller font */
-  font-weight: bold;
-  color: #000000;           /* black */
-  text-align: right;         /* align text to right */
-  margin-right: 130px;        /* distance from right edge */
-  margin-top: -15px;          /* closer to main title */
-  margin-bottom: 20px;
-}
-
-
-
-
 </style>
+
+<script>
+function showLogin(role) {
+    document.getElementById('role-selection').style.display = 'none';
+    document.getElementById('login-card').style.display = 'block';
+    document.getElementById('role').value = role;
+    document.getElementById('login-title').innerText = "Login as " + role.charAt(0).toUpperCase() + role.slice(1);
+}
+function goBack() {
+    document.getElementById('login-card').style.display = 'none';
+    document.getElementById('role-selection').style.display = 'block';
+}
+</script>
 </head>
 <body>
 
 <!-- Banner -->
 <div class="banner">
-  <img src="Images/banner.png" alt="VMS Banner">
-  <div class="banner-content">
-    <a href="logout.php" class="logout-btn">Logout</a>
-  </div>
+    <img src="Images/SABanner.png" alt="Specanciens Banner">
 </div>
 
-<!-- Main Center Card -->
-<div class="center-box">
-  <!-- Logos inside card -->
-  <img src="Images/SALogo.png" class="logo-left" alt="SA Logo">
-  
-
-  <!-- SPECANCIENS PRESENTS next to left logo -->
-  <div style="display: flex; align-items: center; justify-content: flex-start; margin-bottom: 30px; margin-left: 150px; margin-top: -20px;">
-    <h5 style="font-weight: bold; font-size: 18px; margin: 0;">SPECANCIENS PRESENTS</h5>
+<!-- Role Selection -->
+<div id="role-selection" class="role-buttons">
+    <h3>Login to Visitor Management System</h3>
+    <p>Please choose your login type:</p>
+    <button class="btn-role" onclick="showLogin('admin')">Admin Login</button>
+    <button class="btn-role" onclick="showLogin('member')">Member Login</button>
 </div>
 
-
-  <!-- Card Content -->
-<h2 class="main-title">
-  Visitor <span style="color:#145a20;">Management</span> System
-</h2>
-
-
-
-<h5 class="subtitle">An L&D Initiative</h5>
-
-
-  <img src="Images/buildings.png" alt="Illustration" class="illustration">
-
-  <!-- Get Started Button -->
-  <div class="mt-3">
-    <a href="<?php echo $dashboard_link; ?>" class="btn btn-theme">Click to Get Started</a>
-  </div>
+<!-- Login Form -->
+<div id="login-card" class="card card-login">
+    <div class="card-header text-center">
+        <h4 id="login-title">Login</h4>
+    </div>
+    <div class="card-body">
+        <form method="post" action="">
+            <input type="hidden" name="role" id="role" value="">
+            <div class="form-group">
+                <input type="email" id="inputEmail" class="form-control" name="email" placeholder="Email address" required autofocus>
+            </div>
+            <div class="form-group">
+                <input type="password" id="inputPassword" class="form-control" name="pwd" placeholder="Password" required>
+            </div>
+            <input type="submit" class="btn btn-login btn-block" name="login_btn" value="Login">
+            <div class="form-group text-center">
+                <button type="button" class="btn btn-back" onclick="goBack()">← Back</button>
+            </div>
+        </form>
+    </div>
 </div>
+
+<footer>
+    © 2025 SPECANCIENS - All Rights Reserved.
+</footer>
 
 </body>
 </html>

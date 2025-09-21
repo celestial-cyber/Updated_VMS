@@ -70,14 +70,30 @@ $notes_actions = mysqli_query($conn, "SELECT * FROM tbl_coordinator_notes WHERE 
       border-right:1px solid rgba(255,255,255,0.06);
       display:flex; flex-direction:column;
     }
-    .brand{
-      padding:18px 20px; border-bottom:1px solid rgba(255,255,255,0.08);
-      display:flex; align-items:center; gap:10px; font-weight:600;
-    }
-    .brand .logo{display:inline-flex; width:34px; height:34px; border-radius:8px; background:#1d4ed8; align-items:center; justify-content:center}
-    .nav{
-      list-style:none; padding:10px 10px 24px; margin:0; overflow:auto;
-    }
+    .brand {
+    display: flex;
+    align-items: center;   /* vertically center logo and text */
+    gap: 5px;             /* space between logo and text */
+    padding: 12px 20px;    /* adjust top/bottom for better centering */
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    font-weight: 600;
+}
+
+.brand-logo {
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+    border-radius: 8px;
+    background: none;      /* remove any background */
+}
+
+.brand-text {
+    font-size: 15px;
+    line-height: 1;        /* ensures vertical alignment with logo */
+    color: #fff;
+}
+
+
     .nav a{
       display:flex; gap:12px; align-items:center;
       padding:10px 12px; margin:4px 0; color:#cbd5e1; text-decoration:none;
@@ -160,9 +176,15 @@ $notes_actions = mysqli_query($conn, "SELECT * FROM tbl_coordinator_notes WHERE 
   <!-- Sidebar -->
   <aside class="sidebar" id="sidebar">
     <div class="brand">
-      <span class="logo"><i class="fa-solid fa-bullseye text-white"></i></span>
-      <span>VMS Console</span>
-    </div>
+  <img src="Images/SALogo.png" alt="Specanciens Logo" style="width:50px; height:50px; border-radius:8px; object-fit:cover; margin-left:-15px;">
+
+  <span class="brand-text">SPECANCIENS VMS</span>
+</div>
+
+
+
+
+
     <ul class="nav">
       <li><a href="admin_dashboard.php" class="is-active"><i class="fa-solid fa-house"></i><span>Admin Dashboard</span></a></li>
       <li><a href="new-visitor.php"><i class="fa-solid fa-user-plus"></i><span>New Visitor</span></a></li>
