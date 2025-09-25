@@ -104,7 +104,7 @@ if(empty($id))
                 <td><?php echo $sn; ?></td>
                 <td><?php echo htmlspecialchars($row['name']); ?></td>
                 <td><?php echo htmlspecialchars($row['email']); ?></td>
-                <td><?php echo htmlspecialchars($row['mobile']); ?></td>
+                <td><?php echo htmlspecialchars($row['phone']); ?></td>
                 <td><?php echo htmlspecialchars($row['department']); ?></td>
                 <td>
                   <span class="badge <?php echo $row['status']==1 ? 'text-bg-success-subtle text-success border border-success' : 'text-bg-danger-subtle text-danger border border-danger'; ?>">
@@ -137,7 +137,7 @@ if(empty($id))
               <td><?php echo $sn; ?></td>
               <td><?php echo htmlspecialchars($row['name']); ?></td>
               <td><?php echo htmlspecialchars($row['email']); ?></td>
-              <td><?php echo htmlspecialchars($row['mobile']); ?></td>
+              <td><?php echo htmlspecialchars($row['phone']); ?></td>
               <td><?php echo htmlspecialchars($row['department']); ?></td>
               <td>
                 <span class="badge <?php echo $row['status']==1 ? 'text-bg-success-subtle text-success border border-success' : 'text-bg-danger-subtle text-danger border border-danger'; ?>">

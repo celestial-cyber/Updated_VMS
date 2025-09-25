@@ -146,37 +146,6 @@ $announcements = mysqli_query($conn, "SELECT * FROM tbl_coordinator_notes WHERE 
       padding:6px 10px; border-radius:10px; font-weight:500;
     }
 
-    /*Manage Visitors Dropdown*/
-    /* Dropdown styles */
-./* Dropdown styles for dark sidebar */
-.nav ul.dropdown-menu {
-  list-style: none;
-  padding-left: 0;
-  margin: 0;
-  display: none; /* hidden initially */
-  background-color: #0f172a !important; /* DARK sidebar color */
-  border: none !important;
-  border-radius: 8px;
-}
-
-.nav ul.dropdown-menu li a {
-  display: flex;
-  gap: 10px;
-  padding: 8px 20px 8px 40px;
-  color: #cbd5e1 !important; /* light text */
-  text-decoration: none;
-  border-radius: 6px;
-  transition: all 0.15s ease;
-}
-
-.nav ul.dropdown-menu li a:hover {
-  background: rgba(255, 255, 255, 0.06) !important; /* hover effect */
-  color: #fff !important;
-}
-
-
-
-
     /* Responsive */
     @media (max-width: 992px){
       .sidebar{transform:translateX(-100%); transition:transform .2s ease}
@@ -200,26 +169,9 @@ $announcements = mysqli_query($conn, "SELECT * FROM tbl_coordinator_notes WHERE 
 </div>
     <ul class="nav">
       <li><a href="member_dashboard.php" class="is-active"><i class="fa-solid fa-house"></i><span>Member Dashboard</span></a></li>
-      <li><a href="#view-events"><i class="fa-solid fa-calendar-days"></i><span>Manage Events</span></a></li>
-      <li>
-  <ul class="nav">
-  <li class="has-dropdown">
-    <a href="#" onclick="toggleDropdown(event)">
-      <i class="fa-solid fa-edit"></i>
-      <span>Manage Visitors</span>
-      <i class="fa-solid fa-chevron-right ms-auto toggle-icon"></i>
-    </a>
-    <ul class="sidebar-dropdown">
-      <li><a href="#add-visitor"><i class="fa-solid fa-user-plus"></i> Add Visitor</a></li>
-      <li><a href="#edit-visitor"><i class="fa-solid fa-pen"></i> Edit Visitor</a></li>
-    </ul>
-  </li>
-</ul>
-
-
-
-      <li><a href="#view-visitors"><i class="fa-solid fa-edit"></i><span>View Visitors</span></a></li>
-      <li><a href="#manage-notes"><i class="fa-solid fa-user-pen"></i><span>Announcements</span></a></li>
+      <li><a href="#my-events"><i class="fa-solid fa-calendar-days"></i><span>My Events</span></a></li>
+      <li><a href="#register-events"><i class="fa-solid fa-edit"></i><span>Register for Events</span></a></li>
+      <li><a href="#profile"><i class="fa-solid fa-user-pen"></i><span>Profile & Social</span></a></li>
     </ul>
   </aside>
 
@@ -558,17 +510,6 @@ $announcements = mysqli_query($conn, "SELECT * FROM tbl_coordinator_notes WHERE 
         alert('Error updating profile');
       });
     });
-    
-function toggleDropdown(event) {
-  event.preventDefault();
-  const dropdownMenu = event.currentTarget.nextElementSibling;
-  if(dropdownMenu.style.display === "none" || dropdownMenu.style.display === "") {
-    dropdownMenu.style.display = "block";
-  } else {
-    dropdownMenu.style.display = "none";
-  }
-}
-
   </script>
 </body>
 </html>

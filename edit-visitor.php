@@ -17,25 +17,26 @@ $popup_message = '';
 $popup_type = '';
 
 // Handle Save / Update Visitor
-if(isset($_POST['sv-vstr'])) {
-    $fullname   = mysqli_real_escape_string($conn, $_POST['fullname']);
-    $email    = mysqli_real_escape_string($conn, $_POST['email']);
-    $mobile     = mysqli_real_escape_string($conn, $_POST['mobile']);
-    $address    = mysqli_real_escape_string($conn, $_POST['address']);
-    $department = mysqli_real_escape_string($conn, $_POST['department']);
-    $status     = $_POST['status'];
+if(isset($_POST['sv-vstr'])) { // only runs when form is submitted
+    $fullname   = isset($_POST['fullname']) ? mysqli_real_escape_string($conn, $_POST['fullname']) : '';
+    $email      = isset($_POST['email']) ? mysqli_real_escape_string($conn, $_POST['email']) : '';
+    $mobile     = isset($_POST['mobile']) ? mysqli_real_escape_string($conn, $_POST['phone']) : '';
+    $address    = isset($_POST['address']) ? mysqli_real_escape_string($conn, $_POST['address']) : '';
+    $department = isset($_POST['department']) ? mysqli_real_escape_string($conn, $_POST['department']) : '';
+    $status     = isset($_POST['status']) ? $_POST['status'] : 1;
 
     if($status == 0) {
         $update_visitor = mysqli_query($conn, "
             UPDATE tbl_visitors 
-            SET name='$fullname', email='$email', mobile='$mobile',
-                address='$address', department='$department', status='$status', out_time=NOW() 
-            WHERE id='$id'
+SET full_name='$fullname', email='$email', phone='$phone', 
+    address='$address', department='$department', status='$status'
+WHERE id='$id'
+
         ");
     } else {
         $update_visitor = mysqli_query($conn, "
             UPDATE tbl_visitors 
-            SET name='$fullname', email='$email', mobile='$mobile',
+            SET name='$fullname', email='$email', phone='$phone',
                 address='$address', department='$department', status='$status' 
             WHERE id='$id'
         ");
@@ -49,6 +50,7 @@ if(isset($_POST['sv-vstr'])) {
         $popup_type = "danger";
     }
 }
+
 ?>
 
 <?php include('include/header.php'); ?>
@@ -84,7 +86,7 @@ if(isset($_POST['sv-vstr'])) {
                     <div class="form-group row">
                         <label class="col-lg-4 col-form-label">Mobile</label>
                         <div class="col-lg-6">
-                            <input type="text" name="mobile" class="form-control" value="<?php echo $row['mobile']; ?>" readonly>
+                            <input type="text" name="phone" class="form-control" value="<?php echo $row['phone']; ?>" readonly>
                         </div>
                     </div>
                     <!-- Address -->
