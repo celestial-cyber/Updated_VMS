@@ -25,10 +25,8 @@ if (isset($_POST['sbt-vstr'])) {
     $address     = isset($_POST['address']) ? mysqli_real_escape_string($conn, $_POST['address']) : '';
     
     // Redirect logic based on dashboard
-    $redirect_page = 'admin_dashboard.php'; // default
-    if(isset($_POST['form_source']) && $_POST['form_source'] == 'member'){
-        $redirect_page = 'member_dashboard.php';
-    }
+    $redirect_page = 'member_dashboard.php'; // default
+   
 
     // Insert query
     $insert_visitor = mysqli_query($conn, "

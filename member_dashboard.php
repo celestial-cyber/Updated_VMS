@@ -17,21 +17,26 @@ $user_role = $_SESSION['role'] ?? 'member';
 $member_query = mysqli_query($conn, "SELECT * FROM tbl_members WHERE id='$id'");
 $member_data = mysqli_fetch_assoc($member_query);
 
-// Fetch upcoming events
-$upcoming_events = mysqli_query($conn, "SELECT * FROM tbl_events WHERE event_date >= CURDATE() ORDER BY event_date ASC");
 
-// Fetch registered events for this member
-$registered_events_query = mysqli_query($conn, "SELECT er.*, e.event_name, e.event_date 
-                                                FROM event_registrations er 
-                                                JOIN tbl_events e ON er.event = e.event_name 
-                                                WHERE er.user_id='$id'");
-$registered_events = [];
-while ($row = mysqli_fetch_assoc($registered_events_query)) {
-    $registered_events[] = $row;
-}
+// Dashboard Stats for Member
+$total_visitors = mysqli_fetch_row(mysqli_query($conn, "SELECT COUNT(*) FROM tbl_visitors"));
+$checked_in = mysqli_fetch_row(mysqli_query($conn, "SELECT COUNT(*) FROM tbl_visitors WHERE status=1 AND in_time IS NOT NULL"));
+$goodies_given = mysqli_fetch_row(mysqli_query($conn, "SELECT COALESCE(SUM(quantity),0) FROM tbl_goodies_distribution"));
+$event_participants = mysqli_fetch_row(mysqli_query($conn, "SELECT COALESCE(SUM(participant_count),0) FROM tbl_event_participation"));
+// ================= Visitor Data =================
+$visitors = mysqli_query($conn, "SELECT * FROM tbl_visitors ORDER BY created_at DESC LIMIT 10");
+
+// ================= Inventory Data =================
+$inventory = mysqli_query($conn, "SELECT * FROM tbl_inventory ORDER BY status, item_name");
+
+// ================= Goodies Distribution =================
+$goodies = mysqli_query($conn, "SELECT g.*, v.name as visitor_name FROM tbl_goodies_distribution g LEFT JOIN tbl_visitors v ON g.visitor_id = v.id ORDER BY g.distribution_time DESC LIMIT 10");
+
+// ================= Event Participation =================
+$participation = mysqli_query($conn, "SELECT * FROM tbl_event_participation ORDER BY participant_count DESC");
 
 // Fetch announcements (could be from a new table or use coordinator notes)
-$announcements = mysqli_query($conn, "SELECT * FROM tbl_coordinator_notes WHERE note_type='LOG' ORDER BY created_at DESC LIMIT 5");
+//$announcements = mysqli_query($conn, "SELECT * FROM tbl_coordinator_notes WHERE note_type='LOG' ORDER BY created_at DESC LIMIT 5");
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -191,30 +196,90 @@ $announcements = mysqli_query($conn, "SELECT * FROM tbl_coordinator_notes WHERE 
 </head>
 <body>
 
-  <!-- Sidebar -->
-  <aside class="sidebar" id="sidebar">
-    <div class="brand">
-  <img src="Images/SALogo.png" alt="Specanciens Logo" style="width:50px; height:50px; border-radius:8px; object-fit:cover; margin-left:-15px;">
+<!-- Sidebar -->
+<aside class="sidebar" id="sidebar">
+  <div class="brand">
+    <img src="Images/SALogo.png" alt="Specanciens Logo" 
+         style="width:50px; height:50px; border-radius:8px; object-fit:cover; margin-left:-15px;">
+    <span class="brand-text">SPECANCIENS VMS</span>
+  </div>
 
-  <span class="brand-text">SPECANCIENS VMS</span>
-</div>
-    <ul class="nav">
-      <li><a href="member_dashboard.php" class="is-active"><i class="fa-solid fa-house"></i><span>Member Dashboard</span></a></li>
-      <li><a href="#view-events"><i class="fa-solid fa-calendar-days"></i><span>Manage Events</span></a></li>
-      <li>
-  <ul class="nav">
-  <li class="has-dropdown">
-    <a href="#" onclick="toggleDropdown(event)">
-      <i class="fa-solid fa-edit"></i>
-      <span>Manage Visitors</span>
-      <i class="fa-solid fa-chevron-right ms-auto toggle-icon"></i>
-    </a>
-    <ul class="sidebar-dropdown">
-      <li><a href="#add-visitor"><i class="fa-solid fa-user-plus"></i> Add Visitor</a></li>
-      <li><a href="#edit-visitor"><i class="fa-solid fa-pen"></i> Edit Visitor</a></li>
-    </ul>
-  </li>
-</ul>
+  <ul class="nav" style="list-style:none; padding:0; margin:0;">
+    <!-- Member Dashboard -->
+    <li style="margin-bottom:5px;">
+      <a href="member_dashboard.php" class="is-active" 
+         style="background-color:#0f172a; color:white; border-radius:8px; padding:10px 15px; display:flex; align-items:center; text-decoration:none;">
+        <i class="fa-solid fa-house" style="margin-right:8px;"></i>
+        <span>Member Dashboard</span>
+      </a>
+    </li>
+
+    <!-- Manage Events -->
+    <li style="margin-bottom:5px;">
+      <a href="#view-events" 
+         style="background-color:#0f172a; color:white; border-radius:8px; padding:10px 15px; display:flex; align-items:center; text-decoration:none;">
+        <i class="fa-solid fa-calendar-days" style="margin-right:8px;"></i>
+        <span>Manage Events</span>
+      </a>
+    </li>
+
+    <!-- View Visitors -->
+   <!--
+<li style="margin-bottom:5px;">
+  <a href="member_view_visitors.php" 
+     style="background-color:#0f172a; color:white; border-radius:8px; padding:10px 15px; display:flex; align-items:center; text-decoration:none;">
+    <i class="fa-solid fa-eye" style="margin-right:8px;"></i>
+    <span>View Visitors</span>
+  </a>
+</li>
+-->
+
+
+    <!-- Manage Visitors Dropdown -->
+    <li class="has-dropdown" style="position:relative; margin-bottom:5px;">
+      <a href="#" onclick="toggleDropdown(event)" 
+         style="background-color:#0f172a; color:white; border-radius:8px; padding:10px 15px; display:flex; align-items:center; justify-content:space-between; text-decoration:none;">
+        <span><i class="fa-solid fa-edit" style="margin-right:8px;"></i> Manage Visitors</span>
+        <i class="fa-solid fa-chevron-right toggle-icon"></i>
+      </a>
+      <ul class="dropdown-menu" 
+          style="list-style:none; padding:0; margin:0; display:none; 
+                 background-color:#1f2a40; border-radius:8px; position:relative; width:100%;">
+        <li>
+          <a href="member_new-visitor.php" 
+             style="color:white; display:block; padding:10px 15px; text-decoration:none; border-bottom:1px solid #0f172a;">
+            <i class="fa-solid fa-user-plus" style="margin-right:8px;"></i> Add Visitor
+          </a>
+        </li>
+        <li>
+          <a href="member_manage_visitors.php" 
+             style="color:white; display:block; padding:10px 15px; text-decoration:none;">
+            <i class="fa-solid fa-pen" style="margin-right:8px;"></i> Edit Visitor
+          </a>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</aside>
+
+<script>
+function toggleDropdown(event) {
+  event.preventDefault();
+  const dropdown = event.currentTarget.nextElementSibling;
+  const icon = event.currentTarget.querySelector('.toggle-icon');
+
+  if (dropdown.style.display === 'block') {
+    dropdown.style.display = 'none';
+    icon.style.transform = 'rotate(0deg)';
+  } else {
+    dropdown.style.display = 'block';
+    icon.style.transform = 'rotate(90deg)';
+  }
+}
+</script>
+
+
+
 
 
 
@@ -246,143 +311,227 @@ $announcements = mysqli_query($conn, "SELECT * FROM tbl_coordinator_notes WHERE 
       <div class="title-row">
         <span class="chip"><i class="fa-solid fa-user text-primary"></i> Member Dashboard</span>
         <h2>👋 Welcome, <?php echo htmlspecialchars($name); ?></h2>
-        <span class="badge">Member Access</span>
+        <span class="badge">Member Access - Live Data </span>
+      </div>
+      <div class="d-flex gap-2">
+        <button class="btn btn-primary" onclick="exportData()"><i class="fa-solid fa-download me-2"></i>Export CSV</button>
+        <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#filtersModal"><i class="fa-solid fa-sliders me-2"></i>Filters</button>
+        
       </div>
     </div>
 
-    <!-- Upcoming Events -->
-    <div class="card-lite mb-4">
-      <div class="card-head">
-        <div class="d-flex align-items-center gap-2">
-          <i class="fa-solid fa-calendar-check text-primary"></i>
-          <span class="fw-semibold">Upcoming Events</span>
+    <!-- Quick stats -->
+    <div class="row g-3 mb-3">
+      <div class="col-6 col-md-3">
+        <div class="stat">
+          <i class="fa-solid fa-users text-primary"></i>
+          <div>
+            <div class="fw-semibold">Total Visitors</div>
+            <div class="muted"><?php echo $total_visitors[0]; ?></div>
+          </div>
         </div>
       </div>
-      <div class="card-body">
-        <div class="row g-3">
-          <?php while($event = mysqli_fetch_assoc($upcoming_events)) { ?>
-          <div class="col-md-6">
-            <div class="card p-3">
-              <h5><?php echo htmlspecialchars($event['event_name']); ?></h5>
-              <p class="text-muted"><?php echo date('F j, Y', strtotime($event['event_date'])); ?></p>
-              <button class="btn btn-primary btn-sm" onclick="showRegistrationForm('<?php echo $event['event_id']; ?>', '<?php echo htmlspecialchars($event['event_name']); ?>')">
-                <i class="fa-solid fa-right-to-bracket me-1"></i> Register
-              </button>
+      <div class="col-6 col-md-3">
+        <div class="stat">
+          <i class="fa-solid fa-door-open text-success"></i>
+          <div>
+            <div class="fw-semibold">Checked In</div>
+            <div class="muted"><?php echo $checked_in[0]; ?></div>
+          </div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="stat">
+          <i class="fa-solid fa-gift text-warning"></i>
+          <div>
+            <div class="fw-semibold">Goodies Given</div>
+            <div class="muted"><?php echo $goodies_given[0] ?: '0'; ?></div>
+          </div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="stat">
+          <i class="fa-solid fa-clipboard-check text-danger"></i>
+          <div>
+            <div class="fw-semibold">Participants</div>
+            <div class="muted"><?php echo $event_participants[0]; ?></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Content grid -->
+    <div class="row g-2">
+      <!-- Visitor In/Out -->
+      <div class="col-12 col-lg-7">
+        <div class="card-lite">
+          <div class="card-head">
+            <div class="d-flex align-items-center gap-2">
+              <i class="fa-solid fa-right-left text-primary"></i>
+              <span class="fw-semibold">Visitor In/Out</span>
+            </div>
+            <div class="d-flex gap-2">
+              <button class="btn btn-sm btn-soft" onclick="location.href='new-visitor.php'"><i class="fa-solid fa-plus me-1"></i>Add</button>
+              <button class="btn btn-sm btn-soft" onclick="location.reload()"><i class="fa-solid fa-arrow-rotate-right me-1"></i>Refresh</button>
             </div>
           </div>
-          <?php } ?>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table table-sm align-middle">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Department</th>
+                    <th>In Time</th>
+                    <th>Out Time</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <?php while($row = mysqli_fetch_assoc($visitors)) { ?>
+                  <tr>
+                    <td><?php echo htmlspecialchars($row['name']); ?></td>
+                    <td><?php echo htmlspecialchars($row['department']); ?></td>
+                    <td><?php echo htmlspecialchars($row['in_time']); ?></td>
+                    <td><?php echo htmlspecialchars($row['out_time'] ?: '—'); ?></td>
+                    <td>
+                      <span class="badge <?php echo $row['out_time'] ? 'text-bg-success-subtle text-success border border-success' : 'text-bg-primary-subtle text-primary border border-primary'; ?>">
+                        <?php echo $row['out_time'] ? 'Checked Out' : 'Checked In'; ?>
+                      </span>
+                    </td>
+                  </tr>
+                  <?php } ?>
+                </tbody>
+              </table>
+            </div>
+            <div class="d-flex justify-content-between align-items-center mt-2">
+              <span class="muted">Showing recent visitors</span>
+              <a href="member_manage_visitors.php" class="btn btn-sm btn-outline-primary">View All</a>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
 
-    <!-- Registered Events -->
-    <div class="card-lite mb-4">
-      <div class="card-head">
-        <div class="d-flex align-items-center gap-2">
-          <i class="fa-solid fa-bookmark text-success"></i>
-          <span class="fw-semibold">My Registered Events</span>
+      <!-- Inventory -->
+      <div class="col-12 col-lg-5">
+        <div class="card-lite h-100">
+          <div class="card-head">
+            <div class="d-flex align-items-center gap-2">
+              <i class="fa-solid fa-boxes-stacked text-success"></i>
+              <span class="fw-semibold">Inventory</span>
+            </div>
+            <button class="btn btn-sm btn-soft" data-bs-toggle="modal" data-bs-target="#addInventoryModal"><i class="fa-solid fa-plus me-1"></i>Add Item</button>
+          </div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table table-sm">
+                <thead>
+                  <tr>
+                    <th>Item</th>
+                    <th>In Stock</th>
+                    <th>Used</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <?php while($item = mysqli_fetch_assoc($inventory)) { 
+                    $remaining = $item['total_stock'] - $item['used_count'];
+                    $status_class = '';
+                    if ($remaining <= 0) {
+                      $status_class = 'text-bg-danger-subtle text-danger border border-danger';
+                    } elseif ($remaining <= 10) {
+                      $status_class = 'text-bg-warning-subtle text-warning border border-warning';
+                    } else {
+                      $status_class = 'text-bg-success-subtle text-success border border-success';
+                    }
+                  ?>
+                  <tr>
+                    <td><?php echo htmlspecialchars($item['item_name']); ?></td>
+                    <td><?php echo $item['total_stock']; ?></td>
+                    <td><?php echo $item['used_count']; ?></td>
+                    <td><span class="badge <?php echo $status_class; ?>"><?php echo $item['status']; ?></span></td>
+                  </tr>
+                  <?php } ?>
+                </tbody>
+              </table>
+            </div>
+            <div class="d-flex gap-2 mt-2">
+              <button class="btn btn-sm btn-outline-success" data-bs-toggle="modal" data-bs-target="#restockModal"><i class="fa-solid fa-arrow-up-short-wide me-1"></i>Restock</button>
+              <button class="btn btn-sm btn-outline-secondary"><i class="fa-regular fa-file-lines me-1"></i>View Log</button>
+            </div>
+          </div>
         </div>
       </div>
-      <div class="card-body">
-        <ul class="list-group">
-          <?php if (count($registered_events) > 0) { ?>
-            <?php foreach ($registered_events as $reg_event) { ?>
-            <li class="list-group-item d-flex justify-content-between align-items-center">
-              <?php echo htmlspecialchars($reg_event['event_name']); ?>
-              <span class="badge bg-success">Registered</span>
-            </li>
-            <?php } ?>
-          <?php } else { ?>
-            <li class="list-group-item text-center text-muted">
-              You haven't registered for any events yet.
-            </li>
-          <?php } ?>
-        </ul>
-      </div>
-    </div>
 
-    <!-- Profile & Social Media -->
-    <div class="card-lite mb-4">
-      <div class="card-head">
-        <div class="d-flex align-items-center gap-2">
-          <i class="fa-solid fa-user-gear text-warning"></i>
-          <span class="fw-semibold">Profile & Social Media</span>
+      <!-- Goodies -->
+      <div class="col-12 col-lg-7">
+        <div class="card-lite">
+          <div class="card-head">
+            <div class="d-flex align-items-center gap-2">
+              <i class="fa-solid fa-gifts text-warning"></i>
+              <span class="fw-semibold">Goodies Distribution</span>
+            </div>
+            <button class="btn btn-sm btn-soft" data-bs-toggle="modal" data-bs-target="#addGoodieModal"><i class="fa-solid fa-plus me-1"></i>Record</button>
+          </div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table table-sm align-middle">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Goodie</th>
+                    <th>Qty</th>
+                    <th>Time</th>
+                    <th>Remarks</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <?php while($goodie = mysqli_fetch_assoc($goodies)) { ?>
+                  <tr>
+                    <td><?php echo htmlspecialchars($goodie['visitor_name'] ?: 'Unknown'); ?></td>
+                    <td><?php echo htmlspecialchars($goodie['goodie_name']); ?></td>
+                    <td><?php echo $goodie['quantity']; ?></td>
+                    <td><?php echo date('H:i', strtotime($goodie['distribution_time'])); ?></td>
+                    <td><?php echo htmlspecialchars($goodie['remarks'] ?: '—'); ?></td>
+                  </tr>
+                  <?php } ?>
+                </tbody>
+              </table>
+            </div>
+            <div class="d-flex justify-content-end">
+              <button class="btn btn-sm btn-outline-primary"><i class="fa-regular fa-clipboard me-1"></i>Summary</button>
+            </div>
+          </div>
         </div>
       </div>
-      <div class="card-body">
-        <form id="profileForm" class="row g-3">
-          <div class="col-md-6">
-            <label class="form-label">Full Name</label>
-            <input type="text" class="form-control" name="full_name" value="<?php echo htmlspecialchars($member_data['member_name'] ?? ''); ?>" required>
-          </div>
-          <div class="col-md-6">
-            <label class="form-label">Email</label>
-            <input type="email" class="form-control" name="email" value="<?php echo htmlspecialchars($member_data['emailid'] ?? ''); ?>" required>
-          </div>
-          <div class="col-md-6">
-            <label class="form-label">Department</label>
-            <select class="form-select" name="department">
-              <option value="">Select Department</option>
-              <?php
-              $depts = mysqli_query($conn, "SELECT * FROM tbl_department WHERE status=1 ORDER BY department");
-              while($dept = mysqli_fetch_assoc($depts)) {
-                $selected = ($member_data['department'] ?? '') == $dept['department'] ? 'selected' : '';
-                echo "<option value='{$dept['department']}' $selected>{$dept['department']}</option>";
-              }
-              ?>
-            </select>
-          </div>
-          <div class="col-md-6">
-            <label class="form-label">Year of Graduation</label>
-            <select class="form-select" name="graduation_year">
-              <option value="">Select Year</option>
-              <?php for ($y = 2000; $y <= date("Y"); $y++) { 
-                $selected = ($member_data['graduation_year'] ?? '') == $y ? 'selected' : '';
-                echo "<option value='$y' $selected>$y</option>";
-              } ?>
-            </select>
-          </div>
-          <div class="col-md-4">
-            <label class="form-label">LinkedIn ID</label>
-            <input type="text" class="form-control" name="linkedin" placeholder="linkedin.com/in/username" value="<?php echo htmlspecialchars($member_data['linkedin'] ?? ''); ?>">
-          </div>
-          <div class="col-md-4">
-            <label class="form-label">Instagram ID</label>
-            <input type="text" class="form-control" name="instagram" placeholder="@username" value="<?php echo htmlspecialchars($member_data['instagram'] ?? ''); ?>">
-          </div>
-          <div class="col-md-4">
-            <label class="form-label">WhatsApp Number</label>
-            <input type="text" class="form-control" name="whatsapp" placeholder="+91 9876543210" value="<?php echo htmlspecialchars($member_data['whatsapp'] ?? ''); ?>">
-          </div>
-          <div class="col-12">
-            <button type="submit" class="btn btn-success"><i class="fa-solid fa-floppy-disk me-2"></i> Save Profile</button>
-          </div>
-        </form>
-      </div>
-    </div>
 
-    <!-- Announcements -->
-    <div class="card-lite mb-4">
-      <div class="card-head">
-        <div class="d-flex align-items-center gap-2">
-          <i class="fa-solid fa-bullhorn text-danger"></i>
-          <span class="fw-semibold">Announcements</span>
+      <!-- Participation -->
+      <div class="col-12 col-lg-5">
+        <div class="card-lite">
+          <div class="card-head">
+            <div class="d-flex align-items-center gap-2">
+              <i class="fa-solid fa-clipboard-list text-danger"></i>
+              <span class="fw-semibold">Event Participation</span>
+            </div>
+            <button class="btn btn-sm btn-soft" data-bs-toggle="modal" data-bs-target="#addParticipationModal"><i class="fa-solid fa-user-plus me-1"></i>Add</button>
+          </div>
+          <div class="card-body">
+            <ul class="list-group list-group-flush">
+              <?php while($activity = mysqli_fetch_assoc($participation)) { ?>
+              <li class="list-group-item d-flex justify-content-between align-items-center">
+                <?php echo htmlspecialchars($activity['activity_name']); ?>
+                <span class="badge rounded-pill text-bg-primary"><?php echo $activity['participant_count']; ?></span>
+              </li>
+              <?php } ?>
+            </ul>
+            <div class="mt-3 d-flex gap-2">
+              <button class="btn btn-sm btn-outline-secondary"><i class="fa-solid fa-filter me-1"></i>Filter</button>
+              <button class="btn btn-sm btn-outline-primary"><i class="fa-solid fa-share-nodes me-1"></i>Share</button>
+            </div>
+          </div>
         </div>
-      </div>
-      <div class="card-body">
-        <?php while($announcement = mysqli_fetch_assoc($announcements)) { ?>
-        <div class="alert alert-info">
-          <i class="fa-solid fa-circle-info me-2"></i> <?php echo htmlspecialchars($announcement['content']); ?>
-        </div>
-        <?php } ?>
-        <?php if (mysqli_num_rows($announcements) == 0) { ?>
-        <div class="alert alert-warning">
-          <i class="fa-solid fa-triangle-exclamation me-2"></i> No announcements at this time.
-        </div>
-        <?php } ?>
-      </div>
-    </div>
-  </main>
+      </div>    
+
 
   <!-- Event Registration Modal -->
   <div class="modal fade" id="registrationModal" tabindex="-1" aria-hidden="true">
@@ -487,57 +636,56 @@ $announcements = mysqli_query($conn, "SELECT * FROM tbl_coordinator_notes WHERE 
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
           <button type="button" class="btn btn-primary" onclick="submitRegistration()">Complete Registration</button>
         </div>
+     <div class="row g-3 mb-3">
+  <div class="col-6 col-md-4">
+    <div class="stat">
+      <i class="fa-solid fa-users text-primary"></i>
+      <div>
+        <div class="fw-semibold">Total Visitors</div>
+        <div class="muted"><?php echo $total_visitors[0]; ?></div>
       </div>
     </div>
   </div>
+  <div class="col-6 col-md-4">
+    <div class="stat">
+      <i class="fa-solid fa-door-open text-success"></i>
+      <div>
+        <div class="fw-semibold">Checked In</div>
+        <div class="muted"><?php echo $checked_in[0]; ?></div>
+      </div>
+    </div>
+  </div>
+  <div class="col-6 col-md-4">
+    <div class="stat">
+      <i class="fa-solid fa-gift text-warning"></i>
+      <div>
+        <div class="fw-semibold">Goodies Given</div>
+        <div class="muted"><?php echo $goodies_given[0] ?: '0'; ?></div>
+      </div>
+    </div>
+  </div>
+</div>
 
   <!-- Scripts -->
    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script>
-    const sidebar = document.getElementById('sidebar');
-    const toggle = document.getElementById('toggleSidebar');
-    if (toggle) {
-      toggle.addEventListener('click', () => {
-        sidebar.classList.toggle('show');
-      });
-    }
+   const sidebar = document.getElementById('sidebar');
+const toggle = document.getElementById('toggleSidebar');
 
-    function showRegistrationForm(eventId, eventName) {
-      document.getElementById('event_id').value = eventId;
-      document.getElementById('event_name').value = eventName;
-      
-      const modal = new bootstrap.Modal(document.getElementById('registrationModal'));
-      modal.show();
-    }
+if (toggle) {
+  toggle.addEventListener('click', (e) => {
+    e.stopPropagation(); // prevent this click from immediately closing the sidebar
+    sidebar.classList.toggle('show');
+  });
+}
 
-    function submitRegistration() {
-      const form = document.getElementById('registrationForm');
-      const formData = new FormData(form);
-      
-      // Add user_id to the form data
-      formData.append('user_id', '<?php echo $id; ?>');
-      
-      fetch('register_event.php', {
-        method: 'POST',
-        body: formData
-      })
-      .then(response => response.json())
-      .then(data => {
-        if (data.success) {
-          alert('Registration successful!');
-          // Close the modal
-          const modal = bootstrap.Modal.getInstance(document.getElementById('registrationModal'));
-          modal.hide();
-          location.reload();
-        } else {
-          alert('Error: ' + data.message);
-        }
-      })
-      .catch(error => {
-        alert('Error registering for event');
-      });
-    }
-
+// Close sidebar when clicking outside
+document.addEventListener('click', (e) => {
+  if (!sidebar.contains(e.target) && !toggle.contains(e.target)) {
+    sidebar.classList.remove('show');
+  }
+});
+    
     document.getElementById('profileForm').addEventListener('submit', function(e) {
       e.preventDefault();
       const formData = new FormData(this);
@@ -558,7 +706,34 @@ $announcements = mysqli_query($conn, "SELECT * FROM tbl_coordinator_notes WHERE 
         alert('Error updating profile');
       });
     });
-    
+    //add filter functionality 
+    function applyFilters() {
+  const form = document.getElementById('filterForm');
+  const formData = new FormData(form);
+  const params = new URLSearchParams(formData).toString();
+  window.location.href = 'member_dashboard.php?' + params;
+}
+
+   // Simple CSV export for visitor data  
+function exportData() {
+     
+      fetch('export_visitors.php')
+        .then(response => response.text())
+        .then(csv => {
+          const blob = new Blob([csv], { type: 'text/csv' });
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = 'visitors_export.csv';
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          window.URL.revokeObjectURL(url);
+        })
+        .catch(error => {
+          alert('Error exporting data: ' + error);
+        });
+    }
 function toggleDropdown(event) {
   event.preventDefault();
   const dropdownMenu = event.currentTarget.nextElementSibling;
@@ -570,5 +745,6 @@ function toggleDropdown(event) {
 }
 
   </script>
+  
 </body>
 </html>

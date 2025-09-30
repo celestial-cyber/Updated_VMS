@@ -1,10 +1,24 @@
 <?php
 session_start();
 include 'connection.php';
+
+// Check if logged in
+if (empty($_SESSION['id'])) {
+    header("Location: index.php");
+    exit();
+}
+include "include\side-bar.php";
+// Fetch session variables
 $name = $_SESSION['name'];
 $id = $_SESSION['id'];
-if (empty($id)) {
-    header("Location: index.php");
+$role = $_SESSION['role'] ?? 'member'; // default fallback
+
+// Restrict access: only admins allowed here
+if ($role !== 'admin') {
+    echo "<script>
+        alert('Access Denied – Admins Only!');
+        window.location.href = 'member_dashboard.php';
+    </script>";
     exit();
 }
 
@@ -632,7 +646,43 @@ $notes_actions = mysqli_query($conn, "SELECT * FROM tbl_coordinator_notes WHERE 
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
           <button type="button" class="btn btn-primary" onclick="addEvent()">Create Event</button>
+
         </div>
+        <div class="modal fade" id="filtersModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Filters</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <form id="filterForm">
+          <div class="mb-3">
+            <label class="form-label">From Date</label>
+            <input type="date" class="form-control" name="from_date">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">To Date</label>
+            <input type="date" class="form-control" name="to_date">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Status</label>
+            <select class="form-select" name="status">
+              <option value="">All</option>
+              <option value="1">Checked In</option>
+              <option value="0">Not Checked In</option>
+            </select>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary" onclick="applyFilters()">Apply Filters</button>
+      </div>
+    </div>
+  </div>
+</div>
+
       </div>
     </div>
   </div>
@@ -647,6 +697,14 @@ $notes_actions = mysqli_query($conn, "SELECT * FROM tbl_coordinator_notes WHERE 
         sidebar.classList.toggle('show');
       });
     }
+    //add filter functioanlity 
+    function applyFilters() {
+  const form = document.getElementById('filterForm');
+  const formData = new FormData(form);
+  const params = new URLSearchParams(formData).toString();
+  window.location.href = 'admin_dashboard.php?' + params;
+}
+
 
     function exportData() {
       // Simple CSV export for visitor data

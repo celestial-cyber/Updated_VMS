@@ -4,23 +4,18 @@ if (!isset($conn)) {
     include 'connection.php';
 }
 
+
+
 // Get current page for active state
 $current_page = basename($_SERVER['PHP_SELF']);
 
 // Get logged-in user info
 $role = $_SESSION['role'] ?? 'member'; // default to member if role not set
 
-// Fetch counts based on role
-if ($role === 'admin') {
-    $visitor_count = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as count FROM tbl_visitors WHERE status=1"))['count'];
-    $inventory_count = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as count FROM tbl_inventory"))['count'];
-    $goodies_count = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as count FROM tbl_goodies_distribution"))['count'];
-    $participation_count = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as count FROM tbl_event_participation"))['count'];
-    $notes_count = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as count FROM tbl_coordinator_notes"))['count'];
-} else {
+
     // For member, you can limit counts or show only their relevant data
-    $visitor_count = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as count FROM tbl_visitors WHERE status=1"))['count'];
-}
+$visitor_count = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as count FROM tbl_visitors WHERE status=1"))['count'];
+
 ?>
 <!-- Sidebar -->
 <aside class="sidebar" id="sidebar">
@@ -29,21 +24,19 @@ if ($role === 'admin') {
     <span class="brand-text">SPECANCIENS VMS</span>
   </div>
   <ul class="nav">
-    <?php if ($role === 'admin'): ?>
-        <li><a href="admin_dashboard.php" class="<?php echo $current_page == 'admin_dashboard.php' ? 'is-active' : ''; ?>"><i class="fa-solid fa-house"></i><span>Admin Dashboard</span></a></li>
-    <?php else: ?>
-        <li><a href="member_dashboard.php" class="<?php echo $current_page == 'member_dashboard.php' ? 'is-active' : ''; ?>"><i class="fa-solid fa-house"></i><span>Member Dashboard</span></a></li>
-    <?php endif; ?>
+    <li><a href="member_dashboard.php" class="<?php echo $current_page == 'member_dashboard.php' ? 'is-active' : ''; ?>"><i class="fa-solid fa-house"></i><span>Member Dashboard</span></a></li>
+
 
     <li class="section-label">Visitor Management</li>
     <?php if ($role === 'admin'): ?>
         <li><a href="new-visitor.php" class="<?php echo $current_page == 'new-visitor.php' ? 'is-active' : ''; ?>"><i class="fa-solid fa-user-plus"></i><span>New Visitor</span></a></li>
-        <li><a href="manage_visitors_admin.php" class="<?php echo $current_page == 'manage-visitors.php' ? 'is-active' : ''; ?>"><i class="fa-solid fa-users-gear"></i><span>Manage Visitors</span><span class="badge"><?php echo $visitor_count; ?></span></a></li>
+        <li><a href="manage_visitors_admin.php" class="<?php echo $current_page == 'manage_visitors_admin.php' ? 'is-active' : ''; ?>"><i class="fa-solid fa-users-gear"></i><span>Manage Visitors</span><span class="badge"><?php echo $visitor_count; ?></span></a></li>
     <?php else: ?>
-        <li><a href="manage_visitors_member_dashboard.php" class="<?php echo $current_page == 'manage_visitors_member_dashboard.php' ? 'is-active' : ''; ?>"><i class="fa-solid fa-users-gear"></i><span>Manage Visitors</span><span class="badge"><?php echo $visitor_count; ?></span></a></li>
+        <li><a href="member_manage_visitors.php" class="<?php echo $current_page == 'member_manage_visitors.php' ? 'is-active' : ''; ?>"><i class="fa-solid fa-users-gear"></i><span>Manage Visitors</span><span class="badge"><?php echo $visitor_count; ?></span></a></li>
     <?php endif; ?>
+    <li><a href="member_manage_visitors.php" class="<?php echo $current_page == 'member_manage_visitors.php' ? 'is-active' : ''; ?>"><i class="fa-solid fa-users-gear"></i><span>Manage Visitors</span><span class="badge"><?php echo $visitor_count; ?></span></a></li>
 
-    <?php if ($role === 'admin'): ?>
+   <?php /* if ($role === 'admin'): ?>
     <li class="section-label">Inventory Management</li>
     <li><a href="add_inventory.php" class="<?php echo $current_page == 'add_inventory.php' ? 'is-active' : ''; ?>"><i class="fa-solid fa-boxes"></i><span>Add Inventory</span></a></li>
     <li><a href="manage-inventory.php" class="<?php echo $current_page == 'manage-inventory.php' ? 'is-active' : ''; ?>"><i class="fa-solid fa-warehouse"></i><span>Manage Inventory</span><span class="badge"><?php echo $inventory_count; ?></span></a></li>
@@ -60,11 +53,17 @@ if ($role === 'admin') {
     <li><a href="add_note.php" class="<?php echo $current_page == 'add_note.php' ? 'is-active' : ''; ?>"><i class="fa-solid fa-sticky-note"></i><span>Add Note</span></a></li>
     <li><a href="manage-notes.php" class="<?php echo $current_page == 'manage-notes.php' ? 'is-active' : ''; ?>"><i class="fa-solid fa-clipboard-list"></i><span>Manage Notes</span><span class="badge"><?php echo $notes_count; ?></span></a></li>
     <?php endif; ?>
+    <li class="section-label">Visitor Management</li>*/ ?>
 
-    <li class="section-label">Event Dashboards</li>
+
+
+
+   
+
+    <!--<li class="section-label">Event Dashboards</li>
     <li><a href="#"><i class="fa-solid fa-scroll"></i><span>Nostalgia</span></a></li>
     <li><a href="#"><i class="fa-solid fa-microphone-lines"></i><span>Alumni Talks</span></a></li>
     <li><a href="#"><i class="fa-solid fa-graduation-cap"></i><span>Induction Program</span></a></li>
     <li><a href="#"><i class="fa-solid fa-briefcase"></i><span>Mock Interviews</span></a></li>
   </ul>
-</aside>
+</aside>-->

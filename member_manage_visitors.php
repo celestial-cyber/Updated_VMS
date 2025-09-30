@@ -8,9 +8,9 @@ if(empty($id))
     header("Location: index.php");
     exit();
 }
+//echo $_SESSION['role']; exit;
 ?>
 <?php include('include/header.php'); ?>
-<?php include("include/side-bar.php");?>
 
 <!-- Content -->
 <div class="container-fluid">
@@ -22,7 +22,7 @@ if(empty($id))
       <span class="badge">Live Data</span>
     </div>
     <div class="d-flex gap-2">
-      <button class="btn btn-primary" onclick="location.href='new-visitor.php'"><i class="fa-solid fa-plus me-2"></i>Add Visitor</button>
+      <button class="btn btn-primary" onclick="location.href='member_new-visitor.php'"><i class="fa-solid fa-plus me-2"></i>Add Visitor</button>
       <button class="btn btn-outline-primary" onclick="location.reload()"><i class="fa-solid fa-arrow-rotate-right me-2"></i>Refresh</button>
     </div>
   </div>
@@ -114,10 +114,10 @@ if(empty($id))
                 </td>
                 <td>
                   <div class="d-flex gap-2">
-                    <a href="edit-visitor.php?id=<?php echo $row['id'];?>" class="btn btn-sm btn-outline-primary">
+                    <a href="member_edit_visitors.php?id=<?php echo $row['id'];?>" class="btn btn-sm btn-outline-primary">
                       <i class="fa-solid fa-pencil me-1"></i><?php echo $row['status']==1 ? 'Edit' : 'View'; ?>
                     </a>
-                    <a href="manage-visitors.php?ids=<?php echo $row['id'];?>" class="btn btn-sm btn-outline-danger" onclick="return confirmDelete()">
+                    <a href="member_manage_visitors.php?ids=<?php echo $row['id'];?>" class="btn btn-sm btn-outline-danger" onclick="return confirmDelete()">
                       <i class="fa-solid fa-trash me-1"></i>Delete
                     </a>
                   </div>
@@ -147,10 +147,10 @@ if(empty($id))
               </td>
               <td>
                 <div class="d-flex gap-2">
-                  <a href="edit-visitor.php?id=<?php echo $row['id'];?>" class="btn btn-sm btn-outline-primary">
+                  <a href="member_edit_visitors.php?id=<?php echo $row['id'];?>" class="btn btn-sm btn-outline-primary">
                     <i class="fa-solid fa-pencil me-1"></i><?php echo $row['status']==1 ? 'Edit' : 'View'; ?>
                   </a>
-                  <a href="manage-visitors.php?ids=<?php echo $row['id'];?>" class="btn btn-sm btn-outline-danger" onclick="return confirmDelete()">
+                  <a href="member_manage_visitors.php?ids=<?php echo $row['id'];?>" class="btn btn-sm btn-outline-danger" onclick="return confirmDelete()">
                     <i class="fa-solid fa-trash me-1"></i>Delete
                   </a>
                 </div>
@@ -206,7 +206,7 @@ if(empty($id))
               <td><?php echo date('M j, Y H:i', strtotime($row_reg['created_at'])); ?></td>
               <td>
                 <div class="d-flex gap-2">
-                  <a href="manage-visitors.php?del_reg=<?php echo $row_reg['id'];?>" class="btn btn-sm btn-outline-danger" onclick="return confirmDeleteRegistration()">
+                  <a href="member_manage_visitors.php?del_reg=<?php echo $row_reg['id'];?>" class="btn btn-sm btn-outline-danger" onclick="return confirmDeleteRegistration()">
                     <i class="fa-solid fa-trash me-1"></i>Delete
                   </a>
                 </div>
@@ -235,7 +235,7 @@ if(isset($_GET['del_reg'])){
     $delete_reg_query = mysqli_query($conn, "DELETE FROM event_registrations WHERE id='$reg_id'");
     if($delete_reg_query){
         echo "<script>alert('Registration deleted successfully');</script>";
-        echo "<script>window.location.href='manage-visitors.php';</script>";
+        echo "<script>window.location.href='member_manage_visitors.php';</script>";
     }
 }
 ?>
