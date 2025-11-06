@@ -1,3 +1,4 @@
+<?php if (session_status() === PHP_SESSION_NONE) { session_start(); } $role = $_SESSION['role'] ?? 'member'; $name = $_SESSION['name'] ?? 'User'; ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -31,7 +32,7 @@
       font-size:15px;
     }
 
-    /* Sidebar */
+    /* Sidebar (default admin dark) */
     .sidebar{
       position:fixed; inset:0 auto 0 0;
       width:260px; background:#0f172a; color:#fff;
@@ -43,20 +44,24 @@
       display:flex; align-items:center; gap:10px; font-weight:600;
     }
     .brand .logo{display:inline-flex; width:34px; height:34px; border-radius:8px; background:#1d4ed8; align-items:center; justify-content:center}
-    .nav{
-      list-style:none; padding:10px 10px 24px; margin:0; overflow:auto;
-    }
+    .nav{ list-style:none; padding:10px 10px 24px; margin:0; overflow:auto; }
     .nav a{
       display:flex; gap:12px; align-items:center;
       padding:10px 12px; margin:4px 0; color:#cbd5e1; text-decoration:none;
       border-radius:8px; transition:all .15s ease;
     }
     .nav a:hover{background:rgba(255,255,255,0.06); color:#fff}
-    .nav .section-label{
-      font-size:12px; letter-spacing:.08em; text-transform:uppercase; color:#94a3b8;
-      padding:12px 12px 6px; margin-top:6px;
-    }
+    .nav .section-label{ font-size:12px; letter-spacing:.08em; text-transform:uppercase; color:#94a3b8; padding:12px 12px 6px; margin-top:6px; }
     .nav .is-active{background:#1e293b; color:#fff}
+
+    /* Member theme (light purple) */
+    .member-theme .sidebar{ background:#f3e8ff; color:#3b0764; border-right:1px solid #e9d5ff; }
+    .member-theme .brand{ border-bottom:1px solid #e9d5ff; }
+    .member-theme .brand .logo{ background:#7c3aed; }
+    .member-theme .nav a{ color:#5b21b6; }
+    .member-theme .nav a:hover{ background:#ede9fe; color:#3b0764; }
+    .member-theme .nav .section-label{ color:#7c3aed; }
+    .member-theme .nav .is-active{ background:#e9d5ff; color:#3b0764; }
 
     /* Main */
     .main{
@@ -125,7 +130,7 @@
     }
   </style>
 </head>
-<body>
+<body class="<?php echo ($role==='member') ? 'member-theme' : ''; ?>">
 
   <!-- Sidebar -->
   <?php include('side-bar.php'); ?>
@@ -141,12 +146,12 @@
     <div class="topbar">
       <button class="btn btn-soft toggle" id="toggleSidebar"><i class="fa-solid fa-bars"></i></button>
       <div class="crumbs">
-        <a href="admin_dashboard.php">Dashboard</a>
+        <a href="<?php echo ($role==='member') ? 'member_dashboard.php' : 'admin_dashboard.php'; ?>">Dashboard</a>
         <span>›</span>
         <span><?php echo basename($_SERVER['PHP_SELF'], '.php'); ?></span>
       </div>
       <div class="d-flex align-items-center gap-2">
-        <span class="text-muted">Welcome, <?php echo $name; ?></span>
+        <span class="text-muted">Welcome, <?php echo htmlspecialchars($name); ?></span>
         <button class="btn btn-soft"><i class="fa-regular fa-bell"></i></button>
         <button class="btn btn-soft"><i class="fa-regular fa-circle-question"></i></button>
         <a href="logout.php" class="btn btn-soft"><i class="fa-solid fa-right-from-bracket"></i></a>

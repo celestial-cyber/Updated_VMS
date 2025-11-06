@@ -1,8 +1,12 @@
 <?php
 session_start();
 include('connection.php');
+include 'include/guard_member_admin.php'; // allows both admin and member
+
 $name = $_SESSION['name'];
 $id = $_SESSION['id'];
+$role = $_SESSION['role'];
+
 if(empty($id)) {
     header("Location: index.php");
     exit();
@@ -15,15 +19,21 @@ $popup_type = '';
 // Handle Add Inventory
 if(isset($_POST['sbt-inv'])) {
     $item_name = mysqli_real_escape_string($conn, $_POST['item_name']);
-    $total_stock = intval($_POST['total_stock']);
     
-    if (empty($item_name) || $total_stock < 0) {
+    // Admin can enter total_stock, Member has default stock
+    if($role == 'admin') {
+        $total_stock = intval($_POST['total_stock']);
+    } else {
+        $total_stock = 1; // default stock for members
+    }
+
+    if (empty($item_name) || $total_stock < 1) {
         $popup_message = "Invalid input data";
         $popup_type = "danger";
     } else {
         $sql = "INSERT INTO tbl_inventory (item_name, total_stock, used_count, status)
                 VALUES ('$item_name', $total_stock, 0, 'Active')";
-        
+
         if (mysqli_query($conn, $sql)) {
             $popup_message = "Inventory item added successfully!";
             $popup_type = "success";
@@ -39,17 +49,14 @@ if(isset($_POST['sbt-inv'])) {
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <meta name="description" content="">
-  <meta name="author" content="">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>VMS - Add Inventory</title>
   <?php include('include/header.php'); ?>
 </head>
 <body id="page-top">
   <?php
   $breadcrumbs = [
-      ['url' => 'admin_dashboard.php', 'text' => 'Dashboard'],
+      ['url' => $role=='admin'?'admin_dashboard.php':'member_dashboard.php', 'text' => 'Dashboard'],
       ['url' => 'manage-inventory.php', 'text' => 'Inventory'],
       ['text' => 'Add Inventory Item']
   ];
@@ -57,7 +64,7 @@ if(isset($_POST['sbt-inv'])) {
   ?>
   <div id="wrapper">
     <?php include('include/side-bar.php'); ?>
-    
+
     <!-- Content -->
     <div class="container-fluid">
       <!-- Header -->
@@ -68,8 +75,12 @@ if(isset($_POST['sbt-inv'])) {
           <span class="badge">Live Form</span>
         </div>
         <div class="d-flex gap-2">
-          <button class="btn btn-outline-primary" onclick="location.href='manage-inventory.php'"><i class="fa-solid fa-warehouse me-2"></i>View All</button>
-          <button class="btn btn-outline-secondary" onclick="location.reload()"><i class="fa-solid fa-arrow-rotate-right me-2"></i>Reset</button>
+          <button class="btn btn-outline-primary" onclick="location.href='manage-inventory.php'">
+            <i class="fa-solid fa-warehouse me-2"></i>View All
+          </button>
+          <button class="btn btn-outline-secondary" onclick="location.reload()">
+            <i class="fa-solid fa-arrow-rotate-right me-2"></i>Reset
+          </button>
         </div>
       </div>
 
@@ -88,15 +99,23 @@ if(isset($_POST['sbt-inv'])) {
               <input type="text" name="item_name" class="form-control" placeholder="Enter Item Name" required>
             </div>
 
+            <?php if($role == 'admin'): ?>
             <div class="col-12 col-md-6">
               <label class="form-label">Total Stock <span class="text-danger">*</span></label>
-              <input type="number" name="total_stock" class="form-control" placeholder="Enter Stock Quantity" min="0" required>
+              <input type="number" name="total_stock" class="form-control" placeholder="Enter Stock Quantity" min="1" required>
             </div>
+            <?php else: ?>
+            <input type="hidden" name="total_stock" value="1">
+            <?php endif; ?>
 
             <div class="col-12">
               <div class="d-flex gap-2">
-                <button type="submit" name="sbt-inv" class="btn btn-primary"><i class="fa-solid fa-plus me-2"></i>Add Item</button>
-                <button type="reset" class="btn btn-outline-secondary"><i class="fa-solid fa-eraser me-2"></i>Clear Form</button>
+                <button type="submit" name="sbt-inv" class="btn btn-primary">
+                  <i class="fa-solid fa-plus me-2"></i>Add Item
+                </button>
+                <button type="reset" class="btn btn-outline-secondary">
+                  <i class="fa-solid fa-eraser me-2"></i>Clear Form
+                </button>
               </div>
             </div>
           </form>

@@ -40,7 +40,7 @@ if ($role === 'admin') {
         <li><a href="new-visitor.php" class="<?php echo $current_page == 'new-visitor.php' ? 'is-active' : ''; ?>"><i class="fa-solid fa-user-plus"></i><span>New Visitor</span></a></li>
         <li><a href="manage_visitors_admin.php" class="<?php echo $current_page == 'manage-visitors.php' ? 'is-active' : ''; ?>"><i class="fa-solid fa-users-gear"></i><span>Manage Visitors</span><span class="badge"><?php echo $visitor_count; ?></span></a></li>
     <?php else: ?>
-        <li><a href="manage_visitors_member_dashboard.php" class="<?php echo $current_page == 'manage_visitors_member_dashboard.php' ? 'is-active' : ''; ?>"><i class="fa-solid fa-users-gear"></i><span>Manage Visitors</span><span class="badge"><?php echo $visitor_count; ?></span></a></li>
+        <li><a href="member_manage_visitors.php" class="<?php echo $current_page == 'member_manage_visitors.php' ? 'is-active' : ''; ?>"><i class="fa-solid fa-users-gear"></i><span>Manage Visitors</span><span class="badge"><?php echo $visitor_count; ?></span></a></li>
     <?php endif; ?>
 
     <?php if ($role === 'admin'): ?>
@@ -62,9 +62,14 @@ if ($role === 'admin') {
     <?php endif; ?>
 
     <li class="section-label">Event Dashboards</li>
-    <li><a href="#"><i class="fa-solid fa-scroll"></i><span>Nostalgia</span></a></li>
+    <li><a href="nostalgia.php"><i class="fa-solid fa-scroll"></i><span>Nostalgia</span></a></li>
+    <li><a href="member_notes.php"><i class="fa-regular fa-note-sticky"></i><span>Notes</span></a></li>
     <li><a href="#"><i class="fa-solid fa-microphone-lines"></i><span>Alumni Talks</span></a></li>
     <li><a href="#"><i class="fa-solid fa-graduation-cap"></i><span>Induction Program</span></a></li>
     <li><a href="#"><i class="fa-solid fa-briefcase"></i><span>Mock Interviews</span></a></li>
+    <?php if ($role !== 'admin'): ?>
+    <li class="section-label">Notes</li>
+    <li><a href="member_notes.php" class="<?php echo $current_page == 'member_notes.php' ? 'is-active' : ''; ?>"><i class="fa-solid fa-note-sticky"></i><span>Coordinator Notes</span></a></li>
+    <?php endif; ?>
   </ul>
 </aside>

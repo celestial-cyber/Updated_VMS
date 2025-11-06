@@ -1,6 +1,7 @@
 <?php
 session_start();
 include('connection.php');
+include 'include/guard_member.php';
 
 // -----------------------------
 // Session & role checks
@@ -45,9 +46,14 @@ if(isset($_POST['sv-vstr'])) {
     $department = isset($_POST['department']) ? mysqli_real_escape_string($conn, $_POST['department']) : '';
     $status     = isset($_POST['status']) ? $_POST['status'] : 1;
 
+    // choose correct phone column
+    $phoneCol = 'phone';
+    $probe = mysqli_query($conn, "SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='tbl_visitors' AND COLUMN_NAME='mobile' LIMIT 1");
+    if ($probe && mysqli_num_rows($probe) > 0) { $phoneCol = 'mobile'; }
+
     $update_visitor = mysqli_query($conn, "
         UPDATE tbl_visitors 
-        SET name='$fullname', email='$email', phone='$mobile',
+        SET name='$fullname', email='$email', $phoneCol='$mobile',
             address='$address', department='$department', status='$status' 
         WHERE id='$visitor_id'
     ");
@@ -64,7 +70,6 @@ if(isset($_POST['sv-vstr'])) {
 
 <?php include('include/header.php'); ?>
 <div id="wrapper">
-<?php include('include/member_side-bar.php'); ?>
 
 <div id="content-wrapper">
     <div class="container-fluid">
@@ -81,35 +86,35 @@ if(isset($_POST['sv-vstr'])) {
                     <div class="form-group row">
                         <label class="col-lg-4 col-form-label">Name</label>
                         <div class="col-lg-6">
-                            <input type="text" name="fullname" class="form-control" value="<?php echo $row['name']; ?>" readonly>
+                            <input type="text" name="fullname" class="form-control" value="<?php echo $row['name']; ?>">
                         </div>
                     </div>
                     <!-- Email -->
                     <div class="form-group row">
                         <label class="col-lg-4 col-form-label">Email</label>
                         <div class="col-lg-6">
-                            <input type="email" name="email" class="form-control" value="<?php echo $row['email']; ?>" readonly>
+                            <input type="email" name="email" class="form-control" value="<?php echo $row['email']; ?>">
                         </div>
                     </div>
                     <!-- Mobile -->
                     <div class="form-group row">
                         <label class="col-lg-4 col-form-label">Mobile</label>
                         <div class="col-lg-6">
-                            <input type="text" name="phone" class="form-control" value="<?php echo $row['phone']; ?>" readonly>
+                            <input type="text" name="phone" class="form-control" value="<?php echo $row['phone']; ?>">
                         </div>
                     </div>
                     <!-- Address -->
                     <div class="form-group row">
                         <label class="col-lg-4 col-form-label">Address</label>
                         <div class="col-lg-6">
-                            <textarea name="address" class="form-control" readonly><?php echo $row['address']; ?></textarea>
+                            <textarea name="address" class="form-control"><?php echo $row['address']; ?></textarea>
                         </div>
                     </div>
                     <!-- Department -->
                     <div class="form-group row">
                         <label class="col-lg-4 col-form-label">Department</label>
                         <div class="col-lg-6">
-                            <input type="text" name="department" class="form-control" value="<?php echo $row['department']; ?>" readonly>
+                            <input type="text" name="department" class="form-control" value="<?php echo $row['department']; ?>">
                         </div>
                     </div>
                     <!-- In Time -->

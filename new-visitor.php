@@ -1,6 +1,7 @@
 <?php
 session_start();
 include('connection.php');
+include 'include/guard_admin.php';
 $name = $_SESSION['name'];
 $id = $_SESSION['id'];
 if (empty($id)) {

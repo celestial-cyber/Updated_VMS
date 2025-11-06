@@ -81,6 +81,18 @@ CREATE TABLE IF NOT EXISTS tbl_inventory (
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
+-- Inventory change log
+CREATE TABLE IF NOT EXISTS tbl_inventory_log (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  item_id INT NULL,
+  item_name VARCHAR(100) NULL,
+  delta INT NOT NULL,
+  user_id INT NULL,
+  action VARCHAR(50) NOT NULL, -- RESTOCK, CLEAR_ALL
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  INDEX(item_id)
+);
+
 -- Goodies distribution table
 CREATE TABLE IF NOT EXISTS tbl_goodies_distribution (
   id INT AUTO_INCREMENT PRIMARY KEY,
@@ -194,8 +206,8 @@ INSERT INTO tbl_coordinator_notes (note_type, content) VALUES
 
 -- Insert sample members
 INSERT INTO tbl_members (member_name, emailid, password, department, graduation_year, linkedin, instagram, whatsapp) VALUES
-('John Doe', 'john.doe@example.com', MD5('member123'), 'Computer Science', 2020, 'linkedin.com/in/johndoe', '@johndoe', '+91 9876543210'),
-('Jane Smith', 'jane.smith@example.com', MD5('member123'), 'Electronics', 2019, 'linkedin.com/in/janesmith', '@janesmith', '+91 8765432109'),
+('Member', 'member@example.com', MD5('member123'), 'Computer Science', 2020, 'linkedin.com/in/member', '@member', '+91 9876543210'),
+('Member', 'member2@example.com', MD5('member123'), 'Electronics', 2019, 'linkedin.com/in/member2', '@member2', '+91 8765432109'),
 ('Mike Johnson', 'mike.j@example.com', MD5('member123'), 'Mechanical', 2018, 'linkedin.com/in/mikejohnson', '@mikej', '+91 7654321098'),
 ('Sarah Wilson', 'sarah.w@example.com', MD5('member123'), 'Civil', 2021, 'linkedin.com/in/sarahwilson', '@sarahw', '+91 6543210987');
 

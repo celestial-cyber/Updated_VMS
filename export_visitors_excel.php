@@ -10,12 +10,18 @@ use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 $department = $_GET['department'] ?? '';
 $year       = $_GET['year'] ?? '';
 $gender     = $_GET['gender'] ?? '';
+$eventName  = $_GET['event'] ?? '';
 
 // ================= Build Query =================
 $where = "WHERE 1=1";
 if ($department != '') $where .= " AND department='" . mysqli_real_escape_string($conn, $department) . "'";
 if ($year != '')       $where .= " AND year_of_graduation='" . mysqli_real_escape_string($conn, $year) . "'";
 if ($gender != '')     $where .= " AND gender='" . mysqli_real_escape_string($conn, $gender) . "'";
+if ($eventName != '')  {
+    $ename = mysqli_real_escape_string($conn, $eventName);
+    $erow = mysqli_fetch_assoc(mysqli_query($conn, "SELECT event_id FROM tbl_events WHERE event_name='$ename' LIMIT 1"));
+    if ($erow) { $where .= " AND event_id=" . (int)$erow['event_id']; }
+}
 
 $query = "SELECT * FROM tbl_visitors $where ORDER BY in_time DESC";
 $result = mysqli_query($conn, $query);

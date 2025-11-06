@@ -1,6 +1,7 @@
 <?php
 session_start();
 include 'connection.php';
+include 'include/guard_admin.php';
 
 // Check if logged in
 if (empty($_SESSION['id'])) {
@@ -202,7 +203,7 @@ $notes_actions = mysqli_query($conn, "SELECT * FROM tbl_coordinator_notes WHERE 
     <ul class="nav">
       <li><a href="admin_dashboard.php" class="is-active"><i class="fa-solid fa-house"></i><span>Admin Dashboard</span></a></li>
       <li><a href="new-visitor.php"><i class="fa-solid fa-user-plus"></i><span>New Visitor</span></a></li>
-      <li><a href="manage-visitors.php"><i class="fa-solid fa-users-gear"></i><span>Manage Visitors</span></a></li>
+      <li><a href="admin_manage-visitors.php"><i class="fa-solid fa-users-gear"></i><span>Manage Visitors</span></a></li>
 
       <li class="section-label">Event dashboards</li>
       <li><a href="#"><i class="fa-solid fa-scroll"></i><span>Nostalgia</span></a></li>

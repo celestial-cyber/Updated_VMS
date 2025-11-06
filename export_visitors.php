@@ -11,7 +11,18 @@ $output = fopen('php://output', 'w');
 fputcsv($output, ['ID', 'Name', 'Department', 'In Time', 'Out Time', 'Status', 'Goodies Count', 'Created At']);
 
 // Fetch visitor data
-$result = mysqli_query($conn, "SELECT * FROM tbl_visitors ORDER BY created_at DESC");
+// Optional event filter by name
+$eventFilter = '';
+if (!empty($_GET['event'])) {
+    $eventName = mysqli_real_escape_string($conn, $_GET['event']);
+    $eventRow = mysqli_fetch_assoc(mysqli_query($conn, "SELECT event_id FROM tbl_events WHERE event_name='$eventName' LIMIT 1"));
+    if ($eventRow) {
+        $eventId = (int)$eventRow['event_id'];
+        $eventFilter = " WHERE event_id=$eventId ";
+    }
+}
+
+$result = mysqli_query($conn, "SELECT * FROM tbl_visitors $eventFilter ORDER BY created_at DESC");
 
 while ($row = mysqli_fetch_assoc($result)) {
     $status = $row['out_time'] ? 'Checked Out' : 'Checked In';
