@@ -25,10 +25,6 @@ if(isset($_POST['update_goodies'])){
 }
 
 
-
-
-
-
 // Member info
 $id = $_SESSION['id'];
 $name = 'User';

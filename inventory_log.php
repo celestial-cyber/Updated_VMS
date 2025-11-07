@@ -53,3 +53,4 @@ $logs = mysqli_query($conn, "SELECT * FROM tbl_inventory_log ORDER BY created_at
 
 
 
+

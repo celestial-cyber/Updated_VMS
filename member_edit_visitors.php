@@ -51,12 +51,13 @@ if(isset($_POST['sv-vstr'])) {
     $probe = mysqli_query($conn, "SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='tbl_visitors' AND COLUMN_NAME='mobile' LIMIT 1");
     if ($probe && mysqli_num_rows($probe) > 0) { $phoneCol = 'mobile'; }
 
-    $update_visitor = mysqli_query($conn, "
-        UPDATE tbl_visitors 
-        SET name='$fullname', email='$email', $phoneCol='$mobile',
-            address='$address', department='$department', status='$status' 
-        WHERE id='$visitor_id'
-    ");
+   $update_visitor = mysqli_query($conn, "
+    UPDATE tbl_visitors 
+    SET email='$email', $phoneCol='$mobile',
+        address='$address', department='$department', status='$status' 
+    WHERE id='$visitor_id'
+");
+
 
     if($update_visitor) {
         $popup_message = "Visitor updated successfully!";
