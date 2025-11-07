@@ -21,6 +21,8 @@ if (isset($_POST['sbt-vstr'])) {
     $phone       = isset($_POST['phone']) ? mysqli_real_escape_string($conn, $_POST['phone']) : '';
     $gender      = isset($_POST['gender']) ? mysqli_real_escape_string($conn, $_POST['gender']) : '';
     $department  = isset($_POST['department']) ? mysqli_real_escape_string($conn, $_POST['department']) : '';
+    $roll_number = isset($_POST['roll_number']) ? mysqli_real_escape_string($conn, $_POST['roll_number']) : '';
+
     $event_id    = isset($_POST['event_id']) ? mysqli_real_escape_string($conn, $_POST['event_id']) : '';
     $year        = isset($_POST['year_of_graduation']) ? mysqli_real_escape_string($conn, $_POST['year_of_graduation']) : '';
     $address     = isset($_POST['address']) ? mysqli_real_escape_string($conn, $_POST['address']) : '';
@@ -35,8 +37,8 @@ if (isset($_POST['sbt-vstr'])) {
     $phoneCol = $hasMobile ? 'mobile' : 'phone';
 
     $insert_visitor = mysqli_query($conn, "
-        INSERT INTO tbl_visitors (event_id, full_name, email, $phoneCol, address, department, gender, year_of_graduation, in_time)
-VALUES ('$event_id', '$fullname', '$email', '$phone', '$address', '$department', '$gender', '$year', NOW())
+        INSERT INTO tbl_visitors (event_id, full_name, email, $phoneCol, address, department, gender, roll_number,year_of_graduation, in_time)
+VALUES ('$event_id', '$fullname', '$email', '$phone', '$address', '$department', '$gender', '$roll_number' ,'$year', NOW())
 
     ");
 
@@ -149,6 +151,13 @@ VALUES ('$event_id', '$fullname', '$email', '$phone', '$address', '$department',
                   ?>
                 </select>
               </div>
+              
+
+              <div class="col-md-6">
+              <label class="form-label">Roll Number</label>
+              <input type="text" name="roll_number" class="form-control" placeholder="e.g., 20CSE1234" required>
+              </div>
+
 
               <div class="col-md-6">
                 <label class="form-label">Year of Graduation</label>
@@ -191,7 +200,7 @@ VALUES ('$event_id', '$fullname', '$email', '$phone', '$address', '$department',
         <table class="table table-sm align-middle">
           <thead>
             <tr>
-              <th>Name</th><th>Department</th><th>In</th><th>Out</th><th>Status</th><th>Actions</th>
+              <th>Name</th><th>RollNo.</th><th>Department</th><th>Year</th><th>In</th><th>Out</th><th>Status</th><th>Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -200,7 +209,9 @@ VALUES ('$event_id', '$fullname', '$email', '$phone', '$address', '$department',
             while ($v = mysqli_fetch_assoc($recent)) { ?>
               <tr>
                 <td><?php echo htmlspecialchars($v['name']); ?></td>
+                <td><?php echo htmlspecialchars($v['roll_number'] ?: '—'); ?></td>
                 <td><?php echo htmlspecialchars($v['department']); ?></td>
+                <td><?php echo htmlspecialchars($v['year_of_graduation'] ?: '—'); ?></td>
                 <td><?php echo htmlspecialchars($v['in_time'] ?: '—'); ?></td>
                 <td><?php echo htmlspecialchars($v['out_time'] ?: '—'); ?></td>
                 <td>

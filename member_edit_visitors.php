@@ -44,6 +44,8 @@ if(isset($_POST['sv-vstr'])) {
     $mobile     = isset($_POST['phone']) ? mysqli_real_escape_string($conn, $_POST['phone']) : '';
     $address    = isset($_POST['address']) ? mysqli_real_escape_string($conn, $_POST['address']) : '';
     $department = isset($_POST['department']) ? mysqli_real_escape_string($conn, $_POST['department']) : '';
+    $roll_number = isset($_POST['roll_number']) ? mysqli_real_escape_string($conn, $_POST['roll_number']) : '';
+    $year_of_graduation = isset($_POST['year_of_graduation']) ? mysqli_real_escape_string($conn, $_POST['year_of_graduation']) : '';
     $status     = isset($_POST['status']) ? $_POST['status'] : 1;
 
     // choose correct phone column
@@ -54,7 +56,8 @@ if(isset($_POST['sv-vstr'])) {
    $update_visitor = mysqli_query($conn, "
     UPDATE tbl_visitors 
     SET email='$email', $phoneCol='$mobile',
-        address='$address', department='$department', status='$status' 
+        address='$address', department='$department',roll_number='$roll_number',
+        year_of_graduation='$year_of_graduation', status='$status' 
     WHERE id='$visitor_id'
 ");
 
@@ -118,6 +121,23 @@ if(isset($_POST['sv-vstr'])) {
                             <input type="text" name="department" class="form-control" value="<?php echo $row['department']; ?>">
                         </div>
                     </div>
+
+                    <!-- Roll Number -->
+            <div class="form-group row">
+                <label class="col-lg-4 col-form-label">Roll Number</label>
+                <div class="col-lg-6">
+                <input type="text" name="roll_number" class="form-control" value="<?php echo htmlspecialchars($row['roll_number'] ?? ''); ?>">
+                </div>
+            </div>
+
+            <!-- Year of Graduation -->
+        <div class="form-group row">
+             <label class="col-lg-4 col-form-label">Year of Graduation</label>
+            <div class="col-lg-6">
+                <input type="number" name="year_of_graduation" class="form-control" value="<?php echo htmlspecialchars($row['year_of_graduation'] ?? ''); ?>">
+            </div>
+</div>
+
                     <!-- In Time -->
                     <div class="form-group row">
                         <label class="col-lg-4 col-form-label">In Time</label>

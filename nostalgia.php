@@ -19,6 +19,8 @@ if (isset($_GET['export']) && $_GET['export'] === 'pdf') {
     $pdf->Cell(50,10,'Email',1);
     $pdf->Cell(30,10,'Phone',1);
     $pdf->Cell(40,10,'Department',1);
+    $pdf->Cell(30,10,'Roll No.',1);
+    $pdf->Cell(25,10,'Year',1);    
     $pdf->Cell(30,10,'In Time',1);
     $pdf->Cell(30,10,'Out Time',1);
     $pdf->Cell(30,10,'Status',1);
@@ -33,6 +35,8 @@ if (isset($_GET['export']) && $_GET['export'] === 'pdf') {
         $pdf->Cell(50,8,$row['email'] ?: '-',1);
         $pdf->Cell(30,8,$row['phone'] ?: '-',1);
         $pdf->Cell(40,8,$row['department'] ?: '-',1);
+        $pdf->Cell(30,8,$row['roll_number'] ?: '-',1);
+        $pdf->Cell(25,8,$row['year_of_graduation'] ?: '-',1);
         $pdf->Cell(30,8,$row['in_time'] ?: '-',1);
         $pdf->Cell(30,8,$row['out_time'] ?: '-',1);
         $status = $row['out_time'] ? 'Checked Out' : ($row['in_time'] ? 'Checked In' : 'New');
@@ -92,6 +96,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = mysqli_real_escape_string($conn, clean($_POST['email']));
     $phone = mysqli_real_escape_string($conn, clean($_POST['phone']));
     $department = mysqli_real_escape_string($conn, clean($_POST['department']));
+    $roll_number = mysqli_real_escape_string($conn, clean($_POST['roll_number']));
+    $year_of_graduation = mysqli_real_escape_string($conn, clean($_POST['year_of_graduation']));
+
 
     if ($name === '') { $errors[] = 'Name is required.'; }
 
@@ -113,12 +120,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $sets[] = "phone='$phone'";
             }
             $sets[] = "department='$department'";
+            $sets[] = "roll_number='$roll_number'";
+            $sets[] = "year_of_graduation='$year_of_graduation'";
+
             $sql = "UPDATE tbl_visitors SET " . implode(',', $sets) . " WHERE id=$edit_id AND event_id=$event_id";
             if (mysqli_query($conn, $sql)) { $success = 'Visitor updated.'; }
             else { $errors[] = 'Update failed.'; }
         } else {
             $columns = ["event_id","email","department","created_at"];
             $values  = ["$event_id","'$email'","'$department'","NOW()"];
+
+            $columns[] = "roll_number";
+            $values[]  = "'$roll_number'";
+            $columns[] = "year_of_graduation";
+            $values[]  = "'$year_of_graduation'";
+
             if (!isGeneratedColumn($conn, 'tbl_visitors', 'name')) { $columns[] = 'name'; $values[] = "'$name'"; }
             // include full_name if present
             $probeFull = mysqli_query($conn, "SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='tbl_visitors' AND COLUMN_NAME='full_name' LIMIT 1");
@@ -207,6 +223,23 @@ $visitors = mysqli_query($conn, "SELECT * FROM tbl_visitors WHERE event_id=$even
           <label class="form-label">Full Name<span class="text-danger"> *</span></label>
           <input type="text" name="name" class="form-control" required value="<?php echo htmlspecialchars($editing['name'] ?? ''); ?>">
         </div>
+
+        <!-- ADD BELOW FULL NAME FIELD -->
+<div class="col-md-4">
+  <label class="form-label">Roll Number</label>
+  <input type="text" name="roll_number" class="form-control" 
+         value="<?php echo htmlspecialchars($editing['roll_number'] ?? ''); ?>">
+</div>
+
+<div class="col-md-4">
+  <label class="form-label">Year of Graduation</label>
+  <input type="number" name="year_of_graduation" class="form-control" 
+         placeholder="e.g. 2022"
+         min="1980" max="<?php echo date('Y') + 1; ?>"
+         value="<?php echo htmlspecialchars($editing['year_of_graduation'] ?? ''); ?>">
+</div>
+<!-- END -->
+
         <div class="col-md-4">
           <label class="form-label">Email</label>
           <input type="email" name="email" class="form-control" value="<?php echo htmlspecialchars($editing['email'] ?? ''); ?>">
@@ -219,6 +252,8 @@ $visitors = mysqli_query($conn, "SELECT * FROM tbl_visitors WHERE event_id=$even
           <label class="form-label">Department</label>
           <input type="text" name="department" class="form-control" value="<?php echo htmlspecialchars($editing['department'] ?? ''); ?>">
         </div>
+
+
         <div class="col-12">
           <button type="submit" class="btn btn-primary"><i class="fa-solid fa-floppy-disk me-1"></i><?php echo $editing ? 'Save Changes' : 'Register'; ?></button>
           <?php if ($editing): ?>
@@ -253,6 +288,8 @@ $visitors = mysqli_query($conn, "SELECT * FROM tbl_visitors WHERE event_id=$even
               <th>Email</th>
               <th>Phone</th>
               <th>Department</th>
+              <th>RollNo.</th>
+              <th>Year</th>
               <th>In</th>
               <th>Out</th>
               <th>Status</th>
@@ -266,6 +303,9 @@ $visitors = mysqli_query($conn, "SELECT * FROM tbl_visitors WHERE event_id=$even
               <td><?php echo htmlspecialchars($row['email'] ?: '—'); ?></td>
               <td><?php echo htmlspecialchars($row['phone'] ?: '—'); ?></td>
               <td><?php echo htmlspecialchars($row['department'] ?: '—'); ?></td>
+              <td><?php echo htmlspecialchars($row['roll_number'] ?: '—'); ?></td>
+              <td><?php echo htmlspecialchars($row['year_of_graduation'] ?: '—'); ?></td>
+
               <td><?php echo htmlspecialchars($row['in_time'] ?: '—'); ?></td>
               <td><?php echo htmlspecialchars($row['out_time'] ?: '—'); ?></td>
               <td>

@@ -27,40 +27,54 @@ if(empty($id))
     </div>
   </div>
 
-  <!-- Search Form -->
-  <div class="card-lite mb-3">
-    <div class="card-head">
-      <div class="d-flex align-items-center gap-2">
-        <i class="fa-solid fa-filter text-primary"></i>
-        <span class="fw-semibold">Filter Visitors</span>
-      </div>
-    </div>
-    <div class="card-body">
-      <form method="post" class="row g-3 align-items-end">
-        <div class="col-12 col-md-6">
-          <label class="form-label">Visitor Name</label>
-          <input type="text" class="form-control" id="name" name="name" placeholder="Enter name">
-        </div>
-        <div class="col-12 col-md-4">
-          <label class="form-label">Department</label>
-          <select class="form-control" id="department" name="department">
-            <option value="">All Departments</option>
-            <?php
-            $fetch_department = mysqli_query($conn, "SELECT * FROM tbl_department");
-            while($row = mysqli_fetch_array($fetch_department)){
-            ?>
-            <option value="<?php echo $row['department']; ?>"><?php echo $row['department']; ?></option>
-            <?php } ?>
-          </select>
-        </div>
-        <div class="col-12 col-md-2">
-          <button type="submit" name="srh-btn" class="btn btn-primary w-100">
-            <i class="fa-solid fa-search me-2"></i>Search
-          </button>
-        </div>
-      </form>
+ <!-- Search Form -->
+<div class="card-lite mb-3">
+  <div class="card-head">
+    <div class="d-flex align-items-center gap-2">
+      <i class="fa-solid fa-filter text-primary"></i>
+      <span class="fw-semibold">Filter Visitors</span>
     </div>
   </div>
+  <div class="card-body">
+    <form method="post" class="row g-3 align-items-end">
+      <div class="col-12 col-md-3">
+        <label class="form-label">Visitor Name</label>
+        <input type="text" class="form-control" id="name" name="name" placeholder="Enter name">
+      </div>
+
+      <div class="col-12 col-md-3">
+        <label class="form-label">Department</label>
+        <select class="form-control" id="department" name="department">
+          <option value="">All Departments</option>
+          <?php
+          $fetch_department = mysqli_query($conn, "SELECT * FROM tbl_department");
+          while($row = mysqli_fetch_array($fetch_department)){
+          ?>
+          <option value="<?php echo $row['department']; ?>"><?php echo $row['department']; ?></option>
+          <?php } ?>
+        </select>
+      </div>
+
+      <div class="col-12 col-md-2">
+        <label class="form-label">Roll Number</label>
+        <input type="text" class="form-control" id="roll_number" name="roll_number" placeholder="Enter roll number">
+      </div>
+
+      <div class="col-12 col-md-2">
+        <label class="form-label">Year of Graduation</label>
+        <input type="number" class="form-control" id="year_of_graduation" name="year_of_graduation" placeholder="e.g. 2020" min="1950" max="2099">
+      </div>
+
+      <div class="col-12 col-md-2 d-grid">
+        <button type="submit" name="srh-btn" class="btn btn-primary w-100">
+          <i class="fa-solid fa-search me-2"></i>Search
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+
 
   <!-- Visitors Table -->
   <div class="card-lite">
@@ -81,6 +95,8 @@ if(empty($id))
               <th>Email</th>
               <th>Mobile</th>
               <th>Department</th>
+              <th>Roll No</th>
+              <th>Year</th>
               <th>Status</th>
               <th>Actions</th>
               <th>In/Out</th>
@@ -92,6 +108,8 @@ if(empty($id))
             {
                 $visitor_name = trim($_POST['name']);
                 $dept = $_POST['department'];
+                $roll_number = trim($_POST['roll_number']);
+                $year_of_graduation = trim($_POST['year_of_graduation']);
 
                 $conditions = [];
 
@@ -102,6 +120,15 @@ if(empty($id))
                 if(!empty($dept)) {
                     $conditions[] = "department='" . mysqli_real_escape_string($conn, $dept) . "'";
                 }
+
+                if(!empty($roll_number)) {
+                $conditions[] = "roll_number LIKE '%" . mysqli_real_escape_string($conn, $roll_number) . "%'";
+                }
+
+              if(!empty($year_of_graduation)) {
+              $conditions[] = "year_of_graduation='" . mysqli_real_escape_string($conn, $year_of_graduation) . "'";
+              }
+
 
                 $where = '';
                 if(count($conditions) > 0){
@@ -118,6 +145,8 @@ if(empty($id))
                         <td><?php echo htmlspecialchars($row['email']); ?></td>
                         <td><?php echo htmlspecialchars($row['phone']); ?></td>
                         <td><?php echo htmlspecialchars($row['department']); ?></td>
+                        <td><?php echo htmlspecialchars($row['roll_number'] ?? '-'); ?></td>
+                        <td><?php echo htmlspecialchars($row['year_of_graduation'] ?? '-'); ?></td>
                         <td>
                             <span class="badge <?php echo $row['status']==1 ? 'text-bg-success-subtle text-success border border-success' : 'text-bg-danger-subtle text-danger border border-danger'; ?>">
                                 <?php echo $row['status']==1 ? 'In' : 'Out'; ?>
@@ -163,6 +192,8 @@ if(empty($id))
                         <td><?php echo htmlspecialchars($row['email']); ?></td>
                         <td><?php echo htmlspecialchars($row['phone']); ?></td>
                         <td><?php echo htmlspecialchars($row['department']); ?></td>
+                        <td><?php echo htmlspecialchars($row['roll_number'] ?? '-'); ?></td>
+                        <td><?php echo htmlspecialchars($row['year_of_graduation'] ?? '-'); ?></td>
                         <td>
                             <span class="badge <?php echo $row['status']==1 ? 'text-bg-success-subtle text-success border border-success' : 'text-bg-danger-subtle text-danger border border-danger'; ?>">
                                 <?php echo $row['status']==1 ? 'In' : 'Out'; ?>

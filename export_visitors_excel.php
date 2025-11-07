@@ -23,7 +23,8 @@ if ($eventName != '')  {
     if ($erow) { $where .= " AND event_id=" . (int)$erow['event_id']; }
 }
 
-$query = "SELECT * FROM tbl_visitors $where ORDER BY in_time DESC";
+$query = "SELECT full_name, roll_number, department, year_of_graduation, gender, in_time, out_time 
+          FROM tbl_visitors $where ORDER BY in_time DESC";
 $result = mysqli_query($conn, $query);
 
 // ================= Spreadsheet =================
@@ -31,20 +32,24 @@ $spreadsheet = new Spreadsheet();
 $sheet = $spreadsheet->getActiveSheet();
 
 // Headers
-$sheet->setCellValue('A1', 'Name');
-$sheet->setCellValue('B1', 'Department');
-$sheet->setCellValue('C1', 'Year');
-$sheet->setCellValue('D1', 'Gender');
-$sheet->setCellValue('E1', 'In Time');
+$sheet->setCellValue('A1', 'Full Name');
+$sheet->setCellValue('B1', 'Roll Number');
+$sheet->setCellValue('C1', 'Department');
+$sheet->setCellValue('D1', 'Year of Graduation');
+$sheet->setCellValue('E1', 'Gender');
+$sheet->setCellValue('F1', 'In Time');
+$sheet->setCellValue('G1', 'Out Time');
 
 // Data
 $rowCount = 2;
 while ($row = mysqli_fetch_assoc($result)) {
-    $sheet->setCellValue("A$rowCount", $row['name']);
-    $sheet->setCellValue("B$rowCount", $row['department']);
-    $sheet->setCellValue("C$rowCount", $row['year_of_graduation']);
-    $sheet->setCellValue("D$rowCount", $row['gender']);
-    $sheet->setCellValue("E$rowCount", $row['in_time']);
+    $sheet->setCellValue("A$rowCount", $row['full_name']);
+    $sheet->setCellValue("B$rowCount", $row['roll_number']);
+    $sheet->setCellValue("C$rowCount", $row['department']);
+    $sheet->setCellValue("D$rowCount", $row['year_of_graduation']);
+    $sheet->setCellValue("E$rowCount", $row['gender']);
+    $sheet->setCellValue("F$rowCount", $row['in_time']);
+    $sheet->setCellValue("G$rowCount", $row['out_time']);
     $rowCount++;
 }
 
@@ -56,3 +61,4 @@ header('Cache-Control: max-age=0');
 $writer = new Xlsx($spreadsheet);
 $writer->save('php://output');
 exit();
+?>
